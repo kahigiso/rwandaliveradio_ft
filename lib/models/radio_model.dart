@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'dart:ffi';
 
 class RadioModel {
   final String url;
@@ -9,10 +8,11 @@ class RadioModel {
   final String wave;
   final String description;
   final String infoSrc;
+  final String shortWave;
   bool active = false;
   bool playing = false;
   bool paused = false;
 
-  RadioModel(this.url, this.name, this.img, this.ordering, this.wave,
+  RadioModel(this.url, this.name, this.img, this.ordering, this.wave, this.shortWave,
       this.description, this.infoSrc);
 }

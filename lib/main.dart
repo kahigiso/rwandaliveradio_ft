@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_splash_screen/flutter_splash_screen.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rwandaliveradio_fl/pages/home_page.dart';
 import 'package:rwandaliveradio_fl/pages/player_page.dart';
 import 'package:rwandaliveradio_fl/utils/utils.dart';
-import 'dart:math' as math;
 
 void main() async {
   await registerService();
@@ -17,9 +16,6 @@ class RwandaLiveRadioApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Color(0xFF3A24C2), //or set color with: Color(0xFF0000FF)
-    ));
     return GetMaterialApp(
       title: 'Rwanda Live Radio',
       theme: ThemeData(
@@ -43,6 +39,12 @@ class RwandaLiveRadioApp extends StatelessWidget {
 
 
 
+// void main() async {
+//   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+//   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+//   runApp(const RwandaLiveRadioApp());
+// }
+//
 // class RwandaLiveRadioApp extends StatefulWidget {
 //   const RwandaLiveRadioApp({super.key});
 //   @override
@@ -52,42 +54,25 @@ class RwandaLiveRadioApp extends StatelessWidget {
 //   @override
 //   void initState() {
 //     super.initState();
-//     hideScreen();
-//     Get.toNamed("home");
+//     initialize();
 //   }
 //
-//   ///hide your splash screen
-//   Future<void> hideScreen() async {
-//     Future.delayed(const Duration(milliseconds: 3600), () {
-//       FlutterSplashScreen.hide();
-//     });
+//   void initialize() async {
+//     print("pausing...");
+//     await Future.delayed(const Duration(seconds: 10));
+//     print("unpausing...");
+//     FlutterNativeSplash.remove();
 //   }
 //
 //   @override
 //   Widget build(BuildContext context) {
-//     return  GetMaterialApp(
+//     return  const MaterialApp(
 //       title: 'Rwanda Live Radio',
 //       debugShowCheckedModeBanner: false,
-//         theme: ThemeData(
-//         colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
-//         textTheme: GoogleFonts.robotoTextTheme(),
-//         useMaterial3: true,
-//       ),
-//       routes: {
-//         //"/splash": (context) => HomePage(),
-//         "/home": (context) => HomePage(),
-//       },
-//       //initialRoute: "/splash",
 //       home: Scaffold(
-//         body: Container(
-//         decoration: const BoxDecoration(
-//           color: Color(0xFF3A24C2),
-//         ),
-//           child: Center(
-//             child: _buildLogo(context),
-//           ),
-//         ),
-//       ),
+//         backgroundColor: Colors.red,
+//         body: Center(child: Text("app here"),),
+//       )
 //     );
 //   }
 //

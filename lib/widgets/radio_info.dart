@@ -24,6 +24,7 @@ class RadioInfo extends StatelessWidget {
                 borderRadius: BorderRadius.circular(
                   15,
                 ),
+                color: const Color(0xFF371091).withOpacity(0.75),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
@@ -38,39 +39,41 @@ class RadioInfo extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Card(
-          elevation: 4,  // Change this
-          shadowColor: Colors.grey,  // Change this
-          child: Center(child: Text('Hey, dude.')),
-        ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(radio?.name ?? "",
-              style: GoogleFonts.actor(fontSize: 14, fontWeight: FontWeight.bold),
+              style: GoogleFonts.actor(
+                  fontSize: 14,
+                  color: Colors.white.withOpacity(0.8),
+                  fontWeight: FontWeight.bold
+              ),
           ),
         ),
         SizedBox(
           height: .8,
           child: Container(
-            decoration: const BoxDecoration(color: Color(0xFF4831D4)),
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.6)),
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text(radio?.description ?? "",
-              style: GoogleFonts.actor(fontSize: 12),
+              style: GoogleFonts.actor(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: 12
+              ),
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Text("Source: ${radio?.infoSrc ?? ""}",
-            style: GoogleFonts.actor(fontSize: 12, color: Colors.blue),
+            style: GoogleFonts.actor(fontSize: 12, color: Colors.green),
           ),
         ),
         SizedBox(
           height: .8,
           child: Container(
-            decoration: const BoxDecoration(color: Color(0xFF4831D4)),
+            decoration: BoxDecoration(color: Colors.white.withOpacity(0.6)),
           ),
         ),
         Padding(
@@ -78,7 +81,10 @@ class RadioInfo extends StatelessWidget {
           child: Align(
             alignment: Alignment.centerRight,
             child: Text(radio?.wave ?? "",
-                style: GoogleFonts.actor(fontSize: 11, color: Colors.grey),
+                style: GoogleFonts.actor(
+                    fontSize: 11,
+                  color: Colors.white.withOpacity(0.6),
+                ),
             ),
           ),
         ),

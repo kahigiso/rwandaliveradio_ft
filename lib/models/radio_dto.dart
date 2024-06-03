@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
 
 class RadioDto {
@@ -39,6 +40,21 @@ class RadioDto {
       };
 
   RadioModel toRadioModel() {
-    return RadioModel(url, name, img, order, wave, desc, infoSrc);
+    final shortWave = getShortWave().trim();
+    return RadioModel(url, name, img.trim(), order, wave, shortWave, desc, infoSrc);
+  }
+
+  String getShortWave() {
+    if(wave.isEmpty) {
+      return "Internet Radio";
+    } else{
+      if(wave.contains(",")) {
+        return wave.split(",")[1];
+      } else if(wave.contains("Kigali")){
+        return wave.replaceAll("Kigali","");
+      }else {
+        return wave;
+      }
+    }
   }
 }
