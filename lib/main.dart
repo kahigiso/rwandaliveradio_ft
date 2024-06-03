@@ -1,6 +1,5 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rwandaliveradio_fl/pages/home_page.dart';
@@ -8,6 +7,9 @@ import 'package:rwandaliveradio_fl/pages/player_page.dart';
 import 'package:rwandaliveradio_fl/utils/utils.dart';
 
 void main() async {
+  AssetsAudioPlayer.setupNotificationsOpenAction((notification) {
+    return true;
+  });
   await registerService();
   runApp(const RwandaLiveRadioApp());
 }

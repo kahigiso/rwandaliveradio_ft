@@ -1,8 +1,5 @@
 import 'dart:async';
-import 'dart:developer';
-
 import 'package:assets_audio_player/assets_audio_player.dart';
-import 'package:flutter/animation.dart';
 import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/services/http_services.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -14,7 +11,7 @@ class HomeScreenController extends GetxController {
   RxList<RadioModel> radios = <RadioModel>[].obs;
   Rx<RadioModel?> currentPlayingRadio = (null as RadioModel?).obs;
   final Rx<ItemScrollController?> itemScrollController = (null as ItemScrollController?).obs;
-  final AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer();
+  final AssetsAudioPlayer assetsAudioPlayer = AssetsAudioPlayer.newPlayer();
   RxBool isPlaying = false.obs;
   RxBool  isShuffling = false.obs;
   RxBool  isBuffering = false.obs;
@@ -32,6 +29,11 @@ class HomeScreenController extends GetxController {
     itemScrollController?.value = ItemScrollController();
     registerObservers();
     _getRadios();
+  }
+  @override
+  void onClose(){
+    assetsAudioPlayer.dispose();
+    super.onClose();
   }
 
   void registerObservers(){
@@ -76,7 +78,7 @@ class HomeScreenController extends GetxController {
           ),
           loopMode: LoopMode.single,
           playInBackground: PlayInBackground.enabled,
-          showNotification: false,
+          showNotification: true,
           notificationSettings: const NotificationSettings()
       ).timeout(const Duration(seconds: 10)); //FIXME we are timing out because failure  assetsAudioPlayer.open() is not throwing an exception
       print("playNewUrl 4");
@@ -141,7 +143,7 @@ class HomeScreenController extends GetxController {
     await Future.delayed(const Duration(seconds: 6));
     HttpServices httpServices = Get.find();
     var response = await httpServices.get("allradios");
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200) { // FIXME response can be null unhandled exception " Error: HttpException: Connection closed before full header was received, uri ="
       radios.value = response.data.map<RadioModel>((radioJson)=> RadioDto.fromJson(radioJson).toRadioModel()).toList();
     }
     //TODO check for different status and add a view event handler object

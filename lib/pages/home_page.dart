@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
 import 'package:rwandaliveradio_fl/pages/home_screen_controller.dart';
 import '../widgets/avatar.dart';
@@ -101,9 +102,23 @@ class HomePage extends StatelessWidget {
                 itemBuilder: (context, index) {
                   final item = controller.radios[index];
                   return GestureDetector(
-                    onTap: () => {
-                      controller. onRadioClicked(item.url),
-                      Get.toNamed("player")
+                    onTap: () async {
+                      PermissionStatus notification = await Permission.notification.request();
+                      if(notification == PermissionStatus.granted){
+                        controller.onRadioClicked(item.url);
+                        Get.toNamed("player");
+                      }else{
+                        if(notification == PermissionStatus.denied){
+                          ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("This permission is required to use this app")
+                              )
+                          );
+                        }
+                        if(notification == PermissionStatus.permanentlyDenied){
+                            openAppSettings();
+                        }
+                      }
                     },
                     child: _listItemUi(context, item),
                   );
