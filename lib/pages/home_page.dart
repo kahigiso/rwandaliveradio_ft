@@ -1,14 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
 import 'package:rwandaliveradio_fl/pages/home_screen_controller.dart';
-import 'package:rwandaliveradio_fl/pages/player_page.dart';
-import 'dart:math' as math;
-
-import '../widgets/logo.dart';
+import '../widgets/avatar.dart';
 import '../widgets/radio_info.dart';
 
 class HomePage extends StatelessWidget {
@@ -20,83 +15,101 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _appBar(context),
-      body: _buildUi(context),
-    );
+    return Obx( () => Container(
+      width: MediaQuery.sizeOf(context).width,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFF3F0C7C),
+            Color(0xFF874FCB),
+            Color(0xFFBB9BF3)
+          ],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: _appBar(context),
+        body: _buildUi(context),
+      ),
+    ));
   }
 
   Widget _buildUi(BuildContext context) {
     return SafeArea(
-      child: Obx(
-        () => Container(
-          width: MediaQuery.sizeOf(context).width,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              colors: [
-                Color(0xFF3A24C2),
-                Color(0xFF8775F6),
-                Colors.white,
-              ],
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            child: SizedBox(
+              width: MediaQuery.sizeOf(context).width,
+              child: Column(
+                children: [
+                  SizedBox(
+                    width: MediaQuery.sizeOf(context).width * 0.95,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15.0, horizontal: 8.0),
+                      child: Text(
+                        "Live radio stations",
+                        textAlign: TextAlign.start,
+                        style: GoogleFonts.actor(
+                            color: Colors.white,
+                            fontSize: 30,
+                            fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ),
+                  _buildRadioList(
+                    context,
+                  ),
+                ],
+              ),
             ),
           ),
-          child: Column(
-            children: [
-              const Logo(),
-              Flexible(
-                child: _buildRadioList(
-                  context,
-                ),
-              )
-            ],
-          ),
-        ),
+          if(controller.currentPlayingRadio.value!=null)
+            _radioBottomPlayer(context, controller.currentPlayingRadio.value!)
+        ],
       ),
     );
   }
 
   Widget _buildRadioList(BuildContext context) {
-    return Container(
+    return SizedBox(
         width: MediaQuery.sizeOf(context).width,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF3F3F6),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(30.0), // Adjust the values as needed
-            topRight: Radius.circular(30.0),
-          ),
-        ),
-        child: Padding(
+        child: (controller.loading.value)? const Center(
+                child: CircularProgressIndicator(
+                  backgroundColor: Color(0xFFB4ACEF),
+                  color: Color(0xFF7464E3),
+                ),
+              )
+            : Padding(
           padding: const EdgeInsets.only(top: 8),
           child: Stack(
             children: [
+              const VerticalDivider( //FIXME not visible
+                width: 20,
+                thickness: 1,
+                indent: 20,
+                endIndent: 0,
+                color: Colors.grey,
+              ),
               ListView.builder(
+                primary: false,
+                shrinkWrap: true,
                 itemCount: controller.radios.length,
                 itemBuilder: (context, index) {
                   final item = controller.radios[index];
                   return GestureDetector(
                     onTap: () => {
-                      controller.onRadioClicked(item.url),
+                      controller. onRadioClicked(item.url),
                       Get.toNamed("player")
                     },
                     child: _listItemUi(context, item),
                   );
                 },
               ),
-              Padding(
-                padding: EdgeInsets.only(
-                    left: MediaQuery.sizeOf(context).width * 0.045),
-                child: SizedBox(
-                  height: MediaQuery.sizeOf(context).height * 9,
-                  width: 1,
-                  child: Container(
-                    decoration: const BoxDecoration(color: Color(0xFF4831D4)),
-                  ),
-                ),
-              ),
-              if(controller.current.value!=null)
-                _radioBottomPlayer(context, controller.current.value!)
-            ],
+            ]
           ),
         ));
   }
@@ -108,15 +121,12 @@ class HomePage extends StatelessWidget {
         child: Container(
             width: MediaQuery.sizeOf(context).width*0.6,
             height: MediaQuery.sizeOf(context).height*0.09,
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.only(
+            decoration:   BoxDecoration(
+              color:  const Color(0xFF4A279D).withOpacity(0.95),
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(30.0), // Adjust the values as needed
                 bottomLeft: Radius.circular(30.0),
               ),
-              boxShadow: [
-                BoxShadow(blurRadius: 25, color: Color(0xFFD6D6D6), spreadRadius:5)
-              ],
             ),
 
             child: Padding(
@@ -124,17 +134,32 @@ class HomePage extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  _buildAvatarUi(context, radio.img),
+                 // Avatar(url: radio.img),
+                  Avatar(url: radio.img, boxShadows:const [BoxShadow(blurRadius: 0, color: Color(0xFFD6D6D6), spreadRadius: 0)]),
                   const SizedBox(width: 16,),
                 Flexible(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Playing ...",
-                          style: GoogleFonts.actor(
-                              fontSize: 12, color: const Color(0xFF4831D4)),
+                        Row(
+                          children: [
+                            Container(
+                              width: 10.0,
+                              height: 10.0,
+                              decoration:  BoxDecoration(
+                                color:(controller.isPlaying.value)? Colors.green.withOpacity(0.8): Colors.red.withOpacity(0.8),
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              (controller.isPlaying.value)? "Now live": "Buffering ...",
+                              style: GoogleFonts.roboto(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 11,
+                            ),),
+                          ],
                         ),
                         const SizedBox(
                           height: 3,
@@ -144,7 +169,9 @@ class HomePage extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.actor(
-                              fontSize: 12, fontWeight: FontWeight.w600),
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600),
                         ),
                         const SizedBox(
                           height: 3,
@@ -155,7 +182,7 @@ class HomePage extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: GoogleFonts.actor(
                               fontSize: 10,
-                              color: Colors.grey,
+                              color: Colors.white.withOpacity(0.7),
                               fontWeight: FontWeight.w300),
                         ),
                       ],
@@ -183,14 +210,14 @@ class HomePage extends StatelessWidget {
             width: 20.0,
             height: 20.0,
             decoration: const BoxDecoration(
-              color: Color(0xFF4831D4),
+              color: Color(0xFF4A279D),
               shape: BoxShape.circle,
             ),
           ),
           Container(
             width: 25.0,
             height: 1.0,
-            decoration: const BoxDecoration(color: Color(0xFF4831D4)),
+            decoration: const BoxDecoration(color: Color(0xFF4A279D)),
           ),
           _buildListItemCard(context, radio),
         ],
@@ -201,9 +228,9 @@ class HomePage extends StatelessWidget {
   Widget _buildListItemCard(BuildContext context, RadioModel radio) {
     return Container(
       width: MediaQuery.sizeOf(context).width * 0.82,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.all(Radius.circular(6)),
+      decoration:  BoxDecoration(
+        color: const Color(0xFF4A279D).withOpacity(0.65),
+        borderRadius: const BorderRadius.all(Radius.circular(6)),
       ),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -213,7 +240,7 @@ class HomePage extends StatelessWidget {
           children: [
             Expanded(
               flex: 2,
-              child: _buildAvatarUi(context, radio.img),
+              child: Avatar(url: radio.img, boxShadows:const [BoxShadow(blurRadius: 0, color: Color(0xFFD6D6D6), spreadRadius: 0)]),
             ),
             Expanded(
               flex: 6,
@@ -227,6 +254,7 @@ class HomePage extends StatelessWidget {
                       radio.name,
                       maxLines: 1,
                       style: GoogleFonts.actor(
+                          color: Colors.white,
                           fontSize: 14, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(
@@ -236,7 +264,7 @@ class HomePage extends StatelessWidget {
                       radio.wave,
                       style: GoogleFonts.actor(
                           fontSize: 12,
-                          color: Colors.grey,
+                          color: Colors.white60,
                           fontWeight: FontWeight.w300),
                     ),
                   ],
@@ -257,6 +285,7 @@ class HomePage extends StatelessWidget {
                         },
                         icon: const Icon(
                           Icons.more_vert,
+                          color: Colors.white,
                         )),
                   ]),
             )
@@ -266,49 +295,17 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatarUi(BuildContext context, String url) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(blurRadius: 10, color: Color(0xFFD6D6D6), spreadRadius: 3)
-        ],
-      ),
-      child: CircleAvatar(
-        radius: 30,
-        backgroundColor: Colors.white,
-        child: CachedNetworkImage(
-          imageUrl: url.trim(),
-          width: 50,
-          height: 50,
-          fit: BoxFit.contain,
-          placeholder: (context, url) => const CircularProgressIndicator(
-              backgroundColor: Color(0xFFEEEEEE),
-              color: Color(0xFFD6D6D6),
-              strokeWidth: 2),
-          errorWidget: (context, url, error) => Container(
-              decoration: const BoxDecoration(
-                  shape: BoxShape.circle, color: Colors.red),
-              child: const Center(
-                  child: Text(
-                "RT", //TODO update to abbreviation
-                style: TextStyle(fontWeight: FontWeight.w600),
-              ))),
-        ),
-      ),
-    );
-  }
-
   PreferredSizeWidget _appBar(BuildContext context) {
     return AppBar(
-      systemOverlayStyle: const SystemUiOverlayStyle(
-        // Status bar color
-        statusBarColor: Color(0xFF3A24C2),
-        // Status bar brightness (optional)
-        statusBarIconBrightness: Brightness.dark, // For Android (dark icons)
-        statusBarBrightness: Brightness.light, // For iOS (dark icons)
-      ),
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      actionsIconTheme: const IconThemeData(color: Colors.white),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.more_vert),
+          onPressed: () {},
+        ),
+      ],
     );
   }
 }

@@ -10,7 +10,7 @@ class Logo extends StatelessWidget {
 
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
-      height: MediaQuery.sizeOf(context).height * 0.15,
+      height: MediaQuery.sizeOf(context).height * 0.13,
       child: Center(
           child: Stack(
             children: [
@@ -26,7 +26,7 @@ class Logo extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.only(
-                  left: 63,
+                  left: 63, bottom: 35
                 ),
                 child: Transform.rotate(
                   angle: -math.pi / 4,
@@ -38,7 +38,7 @@ class Logo extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                       shadows: [
                         const Shadow(
-                          blurRadius: 25.0,
+                          blurRadius: 35.0,
                           color: Colors.white54,
                           offset: Offset(1.5, 2.5),
                         ),
@@ -48,7 +48,7 @@ class Logo extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 125.0, top: 25),
+                padding: const EdgeInsets.only(left: 125.0, top:25),
                 child: Text(
                   "Radio",
                   style: GoogleFonts.badScript(
