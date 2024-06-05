@@ -8,6 +8,7 @@ import '../models/radio_model.dart';
 
 class HomeScreenController extends GetxController {
   RxBool  loading = false.obs;
+  RxBool  isDark = false.obs;
   RxList<RadioModel> radios = <RadioModel>[].obs;
   Rx<RadioModel?> currentPlayingRadio = (null as RadioModel?).obs;
   final Rx<ItemScrollController?> itemScrollController = (null as ItemScrollController?).obs;
@@ -16,11 +17,6 @@ class HomeScreenController extends GetxController {
   RxBool  isShuffling = false.obs;
   RxBool  isBuffering = false.obs;
   RxBool  isUnreachable = false.obs;
-
-
-  Future<void> handError(Object error, StackTrace stackTrace) async {
-    print("stackTrace======================: $error");
-  }
 
 
   @override
@@ -48,6 +44,10 @@ class HomeScreenController extends GetxController {
     });
   }
 
+  void changeTheme(bool value){
+    isDark.value = value;
+  }
+
   @override
   void onReady() {
     // itemScrollController?.value?.scrollTo(
@@ -66,8 +66,8 @@ class HomeScreenController extends GetxController {
   Future<void> playNewUrl(String url) async {
     print("playNewUrl 1");
     try {
-      print("playNewUrl 2");
-      if (isPlaying.value || isPlaying.value || isPlaying.value) {
+      print("playNewUrl 2 isPlaying ${isPlaying.value} isShuffling ${isShuffling.value} isBuffering ${isBuffering.value} ");
+      if (isPlaying.value || isShuffling.value || isBuffering.value) {
         await assetsAudioPlayer.stop();
       }
       print("playNewUrl 3 $url");

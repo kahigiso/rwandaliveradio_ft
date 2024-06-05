@@ -1,12 +1,20 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:rwandaliveradio_fl/pages/about_page.dart';
+import 'package:rwandaliveradio_fl/pages/contact_page.dart';
 import 'package:rwandaliveradio_fl/pages/home_page.dart';
 import 'package:rwandaliveradio_fl/pages/player_page.dart';
 import 'package:rwandaliveradio_fl/utils/utils.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown
+  ]);
   AssetsAudioPlayer.setupNotificationsOpenAction((notification) {
     return true;
   });
@@ -33,6 +41,8 @@ class RwandaLiveRadioApp extends StatelessWidget {
       routes: {
         "/home": (context) => HomePage(),
         "player": (context) => PlayerPage(),
+        "contact": (context) => const ContactPage(),
+        "about": (context) => const AboutPage(),
       },
       initialRoute: "/home",
     );

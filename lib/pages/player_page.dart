@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -19,21 +20,32 @@ class PlayerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() => Container(
-          width: MediaQuery.sizeOf(context).width,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFF3F0C7C), Color(0xFF874FCB), Color(0xFFBB9BF3)],
-            ),
-          ),
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            //appBar: _appBar(context),
-            body: _buildUi(context),
-          ),
-        ));
+      width: MediaQuery.sizeOf(context).width,
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF3F0C7C), Color(0xFF874FCB), Color(0xFFBB9BF3)],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        //appBar: _appBar(context),
+        body: _buildUi(context),
+      ),
+    ));
   }
+
+  void animateTo(){
+      controller.itemScrollController.value
+          ?.scrollTo(
+          index: controller
+              .indexOfCurrentPlayingRadio(),
+          duration: const Duration(
+              seconds: 1),
+          curve: Curves.fastOutSlowIn);
+  }
+
 
   Widget _buildUi(BuildContext context) {
     return SafeArea(
@@ -162,13 +174,7 @@ class PlayerPage extends StatelessWidget {
                                       if (!controller.isFirst())
                                         {
                                           controller.onPrevious(),
-                                          controller.itemScrollController.value
-                                              ?.scrollTo(
-                                                  index: controller
-                                                      .indexOfCurrentPlayingRadio(),
-                                                  duration: const Duration(
-                                                      seconds: 1),
-                                                  curve: Curves.fastOutSlowIn)
+                                          animateTo()
                                         }
                                     },
                                     icon: Icon(
@@ -202,13 +208,7 @@ class PlayerPage extends StatelessWidget {
                                       if (!controller.isLast())
                                         {
                                           controller.onNext(),
-                                          controller.itemScrollController.value
-                                              ?.scrollTo(
-                                                  index: controller
-                                                      .indexOfCurrentPlayingRadio(),
-                                                  duration: const Duration(
-                                                      seconds: 1),
-                                                  curve: Curves.fastOutSlowIn),
+                                          animateTo()
                                         }
                                     },
                                     icon: Icon(
