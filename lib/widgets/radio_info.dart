@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
 import '../pages/home_screen_controller.dart';
 
@@ -24,7 +23,7 @@ class RadioInfo extends StatelessWidget {
                 borderRadius: BorderRadius.circular(
                   15,
                 ),
-                color: const Color(0xFF371091).withOpacity(0.75),
+                color: Theme.of(context).colorScheme.primary,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
@@ -41,50 +40,56 @@ class RadioInfo extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(radio?.name ?? "",
-              style: GoogleFonts.actor(
-                  fontSize: 14,
-                  color: Colors.white.withOpacity(0.8),
-                  fontWeight: FontWeight.bold
-              ),
+          child: Text(
+            radio?.name ?? "",
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontWeight: FontWeight.w800),
           ),
         ),
-        SizedBox(
-          height: .8,
-          child: Container(
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.6)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+          child: Divider(
+            height: 1,
+            color: Theme.of(context).dividerColor,
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text(radio?.description ?? "",
-              style: GoogleFonts.actor(
-                  color: Colors.white.withOpacity(0.8),
-                  fontSize: 12
-              ),
+          child: Text(
+            radio?.description ?? "",
+            style: Theme.of(context)
+                .textTheme
+                .bodyMedium
+                ?.copyWith(fontSize: 13, fontWeight: FontWeight.w200),
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Text("Source: ${radio?.infoSrc ?? ""}",
-            style: GoogleFonts.actor(fontSize: 12, color: Colors.green),
+          child: Text(
+            "Source: ${radio?.infoSrc ?? ""}",
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontSize: 13, color: Colors.blue, fontWeight: FontWeight.w200),
           ),
         ),
-        SizedBox(
-          height: .8,
-          child: Container(
-            decoration: BoxDecoration(color: Colors.white.withOpacity(0.6)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+          child: Divider(
+            height: 1,
+            color: Theme.of(context).dividerColor,
           ),
         ),
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: Align(
             alignment: Alignment.centerRight,
-            child: Text(radio?.wave ?? "",
-                style: GoogleFonts.actor(
-                    fontSize: 11,
-                  color: Colors.white.withOpacity(0.6),
-                ),
+            child: Text(
+              radio?.wave ?? "",
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(fontSize: 12, fontWeight: FontWeight.w100),
             ),
           ),
         ),

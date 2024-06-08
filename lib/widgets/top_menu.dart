@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:popover/popover.dart';
 
 class TopMenu extends StatelessWidget {
@@ -24,7 +23,7 @@ class TopMenu extends StatelessWidget {
           direction: PopoverDirection.bottom,
           arrowHeight: 10,
           arrowWidth: 15,
-          backgroundColor: const Color(0xFF7E57C2).withOpacity(0.85),
+          backgroundColor: Theme.of(context).colorScheme.primary,
         );
       },
     );
@@ -51,15 +50,17 @@ class MenuItem extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: InkWell(
-          onTap: () => onTap(),
+          onTap: () => {
+            Navigator.of(context).pop(),
+            onTap(),
+          },
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                menuTxt,
-                style: GoogleFonts.actor(
-                  fontSize: 18,
-                    fontWeight: FontWeight.w800, color: Colors.white),
+                menuTxt, style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w800
+              )
               ),
               icon
             ],
