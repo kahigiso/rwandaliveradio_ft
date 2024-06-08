@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
 
 class RadioDto {

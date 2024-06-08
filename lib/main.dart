@@ -1,36 +1,45 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:rwandaliveradio_fl/pages/about_page.dart';
+import 'package:rwandaliveradio_fl/pages/contact_page.dart';
 import 'package:rwandaliveradio_fl/pages/home_page.dart';
 import 'package:rwandaliveradio_fl/pages/player_page.dart';
+import 'package:rwandaliveradio_fl/services/ThemeHandler.dart';
 import 'package:rwandaliveradio_fl/utils/utils.dart';
+import 'themes.dart';
 
 void main() async {
-  await registerService();
-  runApp(const RwandaLiveRadioApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown
+  ]);
+  AssetsAudioPlayer.setupNotificationsOpenAction((notification) {
+    return true;
+  });
+  await registerServices();
+  runApp(RwandaLiveRadioApp());
 }
 class RwandaLiveRadioApp extends StatelessWidget {
-  const RwandaLiveRadioApp({super.key});
-
+  RwandaLiveRadioApp({super.key});
+  final themeController = Get.put(
+    ThemeHandler(),
+  );
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'Rwanda Live Radio',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.purple),
-        textTheme: GoogleFonts.robotoTextTheme(),
-        useMaterial3: true,
-      ),
+      themeMode: themeController.getThemeMode(),
+      theme: Themes.lightTheme,
+      darkTheme: Themes.darkTheme,
       debugShowCheckedModeBanner: false,
-      // getPages: [
-      //   GetPage(name: '/home', page:  () => HomePage()),
-      //   GetPage(name: '/player', page: () => PlayerPage(), transition: Transition.fade),
-      // ],
       routes: {
         "/home": (context) => HomePage(),
         "player": (context) => PlayerPage(),
+        "contact": (context) => const ContactPage(),
+        "about": (context) => const AboutPage(),
       },
       initialRoute: "/home",
     );
