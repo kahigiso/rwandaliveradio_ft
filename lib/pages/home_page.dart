@@ -4,7 +4,7 @@ import 'dart:io' show Platform;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
 import 'package:rwandaliveradio_fl/pages/home_screen_controller.dart';
-import '../services/ThemeHandler.dart';
+import '../services/theme_handler.dart';
 import '../widgets/app_bg.dart';
 import '../widgets/top_menu.dart';
 import '../widgets/avatar.dart';
@@ -368,7 +368,7 @@ class HomePage extends StatelessWidget {
                                       applyCupertinoTheme: false,
                                       value: themeController.isSavedDarkMode(),
                                       onChanged: (bool value) {
-                                        themeController.changeThemeMode((value)? Brightness.dark : Brightness.light);
+                                        themeController.changeThemeMode(value);
                                         Navigator.of(context).pop();
                                       },
                                     ),

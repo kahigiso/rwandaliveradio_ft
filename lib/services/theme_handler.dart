@@ -5,35 +5,32 @@ import 'package:get_storage/get_storage.dart';
 
 class ThemeHandler {
   final _getStorage = GetStorage();
-  final storageKey = "theme";
+  final storageKey = "isDark";
 
   ThemeMode getThemeMode() {
     return isSavedDarkMode() ? ThemeMode.dark : ThemeMode.light;
   }
 
   bool isSavedDarkMode() {
-    String? storeTheme = _getStorage.read(storageKey);
-    print("storeTheme : $storeTheme");
+    bool? storeTheme = _getStorage.read(storageKey);
     if (storeTheme == null) {
       return getDeviceDefaultTheme() == Brightness.dark;
-    } else if (storeTheme == Brightness.dark.name) {
-      return true;
     } else {
-      return false;
+      return storeTheme;
     }
   }
 
-  void saveThemeMode(Brightness mode){
-    _getStorage.write(storageKey, mode.name);
+  void saveThemeMode(bool isDark){
+    _getStorage.write(storageKey, isDark);
   }
 
   Brightness getDeviceDefaultTheme() {
     return SchedulerBinding.instance.platformDispatcher.platformBrightness;
   }
 
-  void changeThemeMode(Brightness mode){
-    Get.changeThemeMode((mode == Brightness.dark)? ThemeMode.dark : ThemeMode.light);
-    saveThemeMode(mode);
+  void changeThemeMode(bool isDark){
+    Get.changeThemeMode((isDark)? ThemeMode.dark : ThemeMode.light);
+    saveThemeMode(isDark);
   }
 
 }
