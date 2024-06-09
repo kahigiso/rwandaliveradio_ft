@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 
 class ThemeHandler {
-  final _getStorage = GetStorage();
+  final _storage = GetStorage();
   final storageKey = "isDark";
 
   ThemeMode getThemeMode() {
@@ -12,7 +12,7 @@ class ThemeHandler {
   }
 
   bool isSavedDarkMode() {
-    bool? storeTheme = _getStorage.read(storageKey);
+    bool? storeTheme = _storage.read(storageKey);
     if (storeTheme == null) {
       return getDeviceDefaultTheme() == Brightness.dark;
     } else {
@@ -21,7 +21,7 @@ class ThemeHandler {
   }
 
   void saveThemeMode(bool isDark){
-    _getStorage.write(storageKey, isDark);
+    _storage.write(storageKey, isDark);
   }
 
   Brightness getDeviceDefaultTheme() {

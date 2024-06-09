@@ -51,6 +51,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                   ),
+                  (controller.dataFetchingFailed.value)?const Text("Data fetching failed try again!"): //FIXME up this to better ui with pull refresh
                   _buildRadioList(
                     context,
                   ),
