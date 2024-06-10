@@ -112,6 +112,10 @@ class HomeScreenController extends GetxController {
     }
   }
 
+  bool isCurrent(RadioModel radio){
+    return radio.url == currentPlayingRadio.value?.url;
+  }
+
   void changeTheme(bool value) {
     isDark.value = value;
   }
@@ -233,6 +237,7 @@ class HomeScreenController extends GetxController {
       }
       dataFetchingFailed.value = false;
     }catch(e){
+      print(e);
       dataFetchingFailed.value = true;
     }
   }

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
+import 'package:rwandaliveradio_fl/services/theme_handler.dart';
 import 'package:rwandaliveradio_fl/widgets/avatar.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../widgets/app_bg.dart';
@@ -11,24 +12,34 @@ class PlayerPage extends StatelessWidget {
   final controller = Get.put(
     HomeScreenController(),
   );
+  final themeHandler = Get.put(
+    ThemeHandler(),
+  );
+
+
 
   PlayerPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Obx(() => AppBg(
+          appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              forceMaterialTransparency: true,
+              elevation: 0,
+              iconTheme: Theme.of(context).iconTheme,),
           body: _buildUi(context),
         ));
   }
 
-  void animateTo() {
+  void _animateTo() {
     controller.itemScrollController.value?.scrollTo(
         index: controller.indexOfCurrentPlayingRadio(),
         duration: const Duration(seconds: 1),
         curve: Curves.fastOutSlowIn);
   }
 
-  MaterialColor getIndicatorColor(
+  MaterialColor _getIndicatorColor(
       DisplayStatusIndicator displayStatusIndicator) {
     switch (displayStatusIndicator) {
       case DisplayStatusIndicator.red:
@@ -46,7 +57,7 @@ class PlayerPage extends StatelessWidget {
     }
   }
 
-  IconData getPlayerIcon() {
+  IconData _getPlayerIcon() {
     if (controller.isPlaying.value) {
       return Icons.pause_circle_filled_rounded;
     } else {
@@ -61,24 +72,18 @@ class PlayerPage extends StatelessWidget {
             width: MediaQuery.sizeOf(context).width,
             child: Column(
               children: [
-                Container(
-                  width: MediaQuery.sizeOf(context).width * 0.97,
-                  alignment: AlignmentDirectional.topStart,
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                    ),
-                    onPressed: () => Get.back(),
-                  ),
-                ),
+              const SizedBox(height: 20,),
                 Avatar(
                   url: controller.currentPlayingRadio.value?.img ?? "",
                   size: (MediaQuery.sizeOf(context).width * 0.30) / 0.6,
                   radius: MediaQuery.sizeOf(context).width * 0.30,
-                  boxShadows: const [
+                  boxShadows: (!themeHandler.isSavedDarkMode())?  <BoxShadow>[
                     BoxShadow(
-                        blurRadius: 0, color: Colors.white, spreadRadius: 0)
-                  ],
+                        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+                        blurRadius: 15.0,
+                        offset: const Offset(0, 0)
+                    )
+                  ]:[],
                 ),
                 SizedBox(
                   width: MediaQuery.sizeOf(context).width,
@@ -106,8 +111,18 @@ class PlayerPage extends StatelessWidget {
                           margin: const EdgeInsets.symmetric(
                               vertical: 8.0, horizontal: 30),
                           decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.tertiary,
-                              borderRadius: BorderRadius.circular(15)),
+                            color: Theme.of(context).colorScheme.tertiary,
+                            borderRadius: BorderRadius.circular(15),
+                            boxShadow:(!themeHandler.isSavedDarkMode())? <BoxShadow>[
+                              BoxShadow(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .surface
+                                      .withOpacity(0.1),
+                                  blurRadius: 15.0,
+                                  offset: const Offset(0, 0))
+                            ]:[],
+                          ),
                           child: Column(
                             children: [
                               SizedBox(
@@ -122,7 +137,7 @@ class PlayerPage extends StatelessWidget {
                                             width: 10.0,
                                             height: 10.0,
                                             decoration: BoxDecoration(
-                                              color: getIndicatorColor(
+                                              color: _getIndicatorColor(
                                                   controller
                                                       .displayStatusIndicator
                                                       .value),
@@ -144,16 +159,13 @@ class PlayerPage extends StatelessWidget {
                                   IconButton(
                                     onPressed: () => {
                                       if (!controller.isFirst())
-                                        {controller.onPrevious(), animateTo()}
+                                        {controller.onPrevious(), _animateTo()}
                                     },
                                     icon: Icon(
                                       Icons.skip_previous_rounded,
                                       size: 40,
                                       color: (!controller.isFirst())
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .secondary
-                                              .withOpacity(0.9)
+                                          ? Theme.of(context).iconTheme.color
                                           : Theme.of(context).indicatorColor,
                                     ),
                                   ),
@@ -169,22 +181,17 @@ class PlayerPage extends StatelessWidget {
                                       child:
                                       CircularProgressIndicator(
                                         strokeWidth: 4,
-                                        backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.9),
+                                        backgroundColor: Theme.of(context).iconTheme.color,
                                         //valueColor: Colors.red,
                                       ),
                                     ),
                                   ):IconButton(
-                                          color: const Color(0xFF3B26C9),
                                           onPressed: () => {
                                                 controller.onPlayButtonClicked()
                                               },
                                           icon: Icon(
-                                            getPlayerIcon(),
+                                            _getPlayerIcon(),
                                             size: 70,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .secondary
-                                                .withOpacity(0.9),
                                           )),
                                   const SizedBox(
                                     width: 20,
@@ -192,16 +199,13 @@ class PlayerPage extends StatelessWidget {
                                   IconButton(
                                     onPressed: () => {
                                       if (!controller.isLast())
-                                        {controller.onNext(), animateTo()}
+                                        {controller.onNext(), _animateTo()}
                                     },
                                     icon: Icon(
                                       Icons.skip_next_rounded,
                                       size: 40,
                                       color: (!controller.isLast())
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .secondary
-                                              .withOpacity(0.9)
+                                          ? Theme.of(context).iconTheme.color
                                           : Theme.of(context).indicatorColor,
                                     ),
                                   )
@@ -245,7 +249,7 @@ class PlayerPage extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 12.0),
-            height: 150,
+            height: 170,
             child: ScrollablePositionedList.builder(
               itemScrollController: controller.itemScrollController.value,
               scrollDirection: Axis.horizontal,
@@ -269,10 +273,19 @@ class PlayerPage extends StatelessWidget {
   Widget _listItemUi(BuildContext context, RadioModel radio) {
     return Container(
       width: MediaQuery.sizeOf(context).width * 0.3,
-      margin: const EdgeInsets.only(right: 10.0),
+      margin: const EdgeInsets.only( top: 10, left: 10,bottom: 15),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiary,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
+        boxShadow: (!themeHandler.isSavedDarkMode())? <BoxShadow>[
+          BoxShadow(
+              color: Theme.of(context)
+                  .colorScheme
+                  .surface
+                  .withOpacity(0.15),
+              blurRadius: 8.0,
+              offset: const Offset(0, 0))
+        ]:[],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
