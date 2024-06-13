@@ -161,21 +161,109 @@ class HomePage extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(
-            width: 20.0,
-            height: 20.0,
-            decoration: BoxDecoration(
-              color: (!isCurrent)? Theme.of(context).colorScheme.surface: Theme.of(context).colorScheme.surfaceDim,
-              shape: BoxShape.circle,
-              boxShadow: (!themeController.isDarkMode())? <BoxShadow>[
-                BoxShadow(
-                    color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
-                    blurRadius: 4.0,
-                    offset: const Offset(0, 1)
-                )
-              ]:[],
-            ),
+          Stack(
+            alignment:Alignment.center,
+            children: [
+              RotationTransition(
+                turns: const AlwaysStoppedAnimation(30 / 360),
+                child: Container(
+                  width: 1.0,
+                  height: 40.0,
+                  decoration: BoxDecoration(
+                    color: (!isCurrent)? Theme.of(context).colorScheme.surface:Theme.of(context).colorScheme.surfaceDim,
+                    boxShadow:(!themeController.isDarkMode())?  <BoxShadow>[
+                      BoxShadow(
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
+                          blurRadius: 4.0,
+                          offset: const Offset(0, 1)
+                      )
+                    ]:[],
+                  ),
+                ),
+              ),
+              RotationTransition(
+                turns: const AlwaysStoppedAnimation(-30 / 360),
+                child: Container(
+                  width: 1.0,
+                  height: 40.0,
+                  decoration: BoxDecoration(
+                    color: (!isCurrent)? Theme.of(context).colorScheme.surface:Theme.of(context).colorScheme.surfaceDim,
+                    boxShadow:(!themeController.isDarkMode())?  <BoxShadow>[
+                      BoxShadow(
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
+                          blurRadius: 4.0,
+                          offset: const Offset(0, 1)
+                      )
+                    ]:[],
+                  ),
+                ),
+              ),
+              RotationTransition(
+                turns: const AlwaysStoppedAnimation(60 / 360),
+                child: Container(
+                  width: 1.0,
+                  height: 30.0,
+                  decoration: BoxDecoration(
+                    color: (!isCurrent)? Theme.of(context).colorScheme.surface:Theme.of(context).colorScheme.surfaceDim,
+                    boxShadow:(!themeController.isDarkMode())?  <BoxShadow>[
+                      BoxShadow(
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
+                          blurRadius: 4.0,
+                          offset: const Offset(0, 1)
+                      )
+                    ]:[],
+                  ),
+                ),
+              ),
+              RotationTransition(
+                turns: const AlwaysStoppedAnimation(-60 / 360),
+                child: Container(
+                  width: 1.0,
+                  height: 30.0,
+                  decoration: BoxDecoration(
+                    color: (!isCurrent)? Theme.of(context).colorScheme.surface:Theme.of(context).colorScheme.surfaceDim,
+                    boxShadow:(!themeController.isDarkMode())?  <BoxShadow>[
+                      BoxShadow(
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
+                          blurRadius: 4.0,
+                          offset: const Offset(0, 1)
+                      )
+                    ]:[],
+                  ),
+                ),
+              ),
+              Container(
+                width: 1.0,
+                height: 100.0,
+                decoration: BoxDecoration(
+                  color: (!isCurrent)? Theme.of(context).colorScheme.surface:Theme.of(context).colorScheme.surfaceDim,
+                  boxShadow:(!themeController.isDarkMode())?  <BoxShadow>[
+                    BoxShadow(
+                        color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
+                        blurRadius: 4.0,
+                        offset: const Offset(0, 1)
+                    )
+                  ]:[],
+                ),
+              ),
+              Container(
+                width: 20.0,
+                height: 20.0,
+                decoration: BoxDecoration(
+                  color: (!isCurrent)? Theme.of(context).colorScheme.surface: Theme.of(context).colorScheme.surfaceDim,
+                  shape: BoxShape.circle,
+                  boxShadow: (!themeController.isDarkMode())? <BoxShadow>[
+                    BoxShadow(
+                        color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
+                        blurRadius: 4.0,
+                        offset: const Offset(0, 1)
+                    )
+                  ]:[],
+                ),
+              ),
+            ],
           ),
+
           Container(
             width: 25.0,
             height: 1.0,
@@ -190,6 +278,8 @@ class HomePage extends StatelessWidget {
               ]:[],
             ),
           ),
+
+
           _buildListItemCard(context, radio, isCurrent),
         ],
       ),
