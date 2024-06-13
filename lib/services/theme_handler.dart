@@ -8,10 +8,10 @@ class ThemeHandler {
   final storageKey = "isDark";
 
   ThemeMode getThemeMode() {
-    return isSavedDarkMode() ? ThemeMode.dark : ThemeMode.light;
+    return isDarkMode() ? ThemeMode.dark : ThemeMode.light;
   }
 
-  bool isSavedDarkMode() {
+  bool isDarkMode() {
     bool? storeTheme = _storage.read(storageKey);
     if (storeTheme == null) {
       return getDeviceDefaultTheme() == Brightness.dark;

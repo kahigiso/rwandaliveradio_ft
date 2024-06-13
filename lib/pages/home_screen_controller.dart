@@ -158,6 +158,16 @@ class HomeScreenController extends GetxController {
     }
   }
 
+  void onStop() {
+    assetsAudioPlayer?.stop();
+   // reset();
+  }
+
+  void reset(){
+    currentPlayingRadio.value == null;
+    initializePlayer();
+  }
+
   void onPrevious() {
     if (isError.value) {
       initializePlayer();
@@ -251,4 +261,6 @@ class HomeScreenController extends GetxController {
       return true;
     }
   }
+
+
 }

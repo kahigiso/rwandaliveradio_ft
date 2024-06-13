@@ -77,7 +77,7 @@ class PlayerPage extends StatelessWidget {
                   url: controller.currentPlayingRadio.value?.img ?? "",
                   size: (MediaQuery.sizeOf(context).width * 0.30) / 0.6,
                   radius: MediaQuery.sizeOf(context).width * 0.30,
-                  boxShadows: (!themeHandler.isSavedDarkMode())?  <BoxShadow>[
+                  boxShadows: (!themeHandler.isDarkMode())?  <BoxShadow>[
                     BoxShadow(
                         color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
                         blurRadius: 15.0,
@@ -113,7 +113,7 @@ class PlayerPage extends StatelessWidget {
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.tertiary,
                             borderRadius: BorderRadius.circular(15),
-                            boxShadow:(!themeHandler.isSavedDarkMode())? <BoxShadow>[
+                            boxShadow:(!themeHandler.isDarkMode())? <BoxShadow>[
                               BoxShadow(
                                   color: Theme.of(context)
                                       .colorScheme
@@ -125,34 +125,6 @@ class PlayerPage extends StatelessWidget {
                           ),
                           child: Column(
                             children: [
-                              SizedBox(
-                                  width: (MediaQuery.sizeOf(context).width *
-                                          0.30) /
-                                      0.6,
-                                  child: Padding(
-                                      padding: const EdgeInsets.only(top: 8.0),
-                                      child: Row(
-                                        children: [
-                                          Container(
-                                            width: 10.0,
-                                            height: 10.0,
-                                            decoration: BoxDecoration(
-                                              color: _getIndicatorColor(
-                                                  controller
-                                                      .displayStatusIndicator
-                                                      .value),
-                                              shape: BoxShape.circle,
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Text(
-                                            controller.displayStatus.value.msg,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium,
-                                          ),
-                                        ],
-                                      ))),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -182,7 +154,6 @@ class PlayerPage extends StatelessWidget {
                                       CircularProgressIndicator(
                                         strokeWidth: 4,
                                         backgroundColor: Theme.of(context).iconTheme.color,
-                                        //valueColor: Colors.red,
                                       ),
                                     ),
                                   ):IconButton(
@@ -277,7 +248,7 @@ class PlayerPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.tertiary,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
-        boxShadow: (!themeHandler.isSavedDarkMode())? <BoxShadow>[
+        boxShadow: (!themeHandler.isDarkMode())? <BoxShadow>[
           BoxShadow(
               color: Theme.of(context)
                   .colorScheme

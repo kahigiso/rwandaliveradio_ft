@@ -7,6 +7,7 @@ import 'package:rwandaliveradio_fl/pages/home_screen_controller.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../services/theme_handler.dart';
 import '../widgets/app_bg.dart';
+import '../widgets/bottom_player.dart';
 import '../widgets/top_menu.dart';
 import '../widgets/avatar.dart';
 import '../widgets/radio_info.dart';
@@ -72,7 +73,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                   ),
-                  (controller.dataFetchingFailed.value)?const Text("Data fetching failed try again!"): //FIXME up this to better ui with pull refresh
+                  (controller.dataFetchingFailed.value)? const Text("Data fetching failed try again!"): //FIXME up this to better ui with pull refresh
                   _buildRadioList(
                     context,
                   ),
@@ -80,8 +81,7 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
-          if (controller.currentPlayingRadio.value != null)
-            _radioBottomPlayer(context, controller.currentPlayingRadio.value!),
+          if (controller.currentPlayingRadio.value != null) BottomPlayer(),
         ],
       ),
     );
@@ -127,10 +127,6 @@ class HomePage extends StatelessWidget {
                                 await Permission.notification.request();
                             if (notification == PermissionStatus.granted) {
                               navigateToPlayer(item);
-                              // controller.onRadioClicked(item.url);
-                              // Get.toNamed("player")?.then((val) {
-                              //   _animateTo();
-                              // });
                             } else {
                               if (notification == PermissionStatus.denied) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -145,10 +141,6 @@ class HomePage extends StatelessWidget {
                             }
                           } else {
                             navigateToPlayer(item);
-                            // controller.onRadioClicked(item.url);
-                            // Get.toNamed("player")?.then((val) {
-                            //   _animateTo();
-                            // });
                           }
                         },
                         child: _listItemUi(context, item, controller.isCurrent(item)),
@@ -175,7 +167,7 @@ class HomePage extends StatelessWidget {
             decoration: BoxDecoration(
               color: (!isCurrent)? Theme.of(context).colorScheme.surface: Theme.of(context).colorScheme.surfaceDim,
               shape: BoxShape.circle,
-              boxShadow: (!themeController.isSavedDarkMode())? <BoxShadow>[
+              boxShadow: (!themeController.isDarkMode())? <BoxShadow>[
                 BoxShadow(
                     color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
                     blurRadius: 4.0,
@@ -189,7 +181,7 @@ class HomePage extends StatelessWidget {
             height: 1.0,
             decoration: BoxDecoration(
               color: (!isCurrent)? Theme.of(context).colorScheme.surface:Theme.of(context).colorScheme.surfaceDim,
-              boxShadow:(!themeController.isSavedDarkMode())?  <BoxShadow>[
+              boxShadow:(!themeController.isDarkMode())?  <BoxShadow>[
                 BoxShadow(
                     color: Theme.of(context).colorScheme.surface.withOpacity(0.6),
                     blurRadius: 4.0,
@@ -210,8 +202,8 @@ class HomePage extends StatelessWidget {
       width: MediaQuery.sizeOf(context).width * 0.82,
       decoration: BoxDecoration(
         color: (!isCurrent)?Theme.of(context).colorScheme.tertiary:Theme.of(context).colorScheme.onTertiary,
-        borderRadius: const BorderRadius.all(Radius.circular(6)),
-        boxShadow: (!themeController.isSavedDarkMode())?   <BoxShadow>[
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+        boxShadow: (!themeController.isDarkMode())?   <BoxShadow>[
           BoxShadow(
               color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
               blurRadius: 30.0,
@@ -229,7 +221,7 @@ class HomePage extends StatelessWidget {
               flex: 2,
               child: Avatar(
                   url: radio.img,
-                  boxShadows:(!themeController.isSavedDarkMode())?  [
+                  boxShadows:(!themeController.isDarkMode())?  [
                     BoxShadow(
                         color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
                         blurRadius: 6.0,
@@ -241,7 +233,7 @@ class HomePage extends StatelessWidget {
             Expanded(
               flex: 6,
               child: Padding(
-                padding: const EdgeInsets.only(left: 4),
+                padding: const EdgeInsets.only(left: 4, top: 16, bottom: 16),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,7 +244,7 @@ class HomePage extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                     const SizedBox(
-                      height: 3,
+                      height: 15,
                     ),
                     Text(
                       radio.wave,
@@ -282,98 +274,6 @@ class HomePage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Widget _radioBottomPlayer(BuildContext context, RadioModel radio) {
-    return Positioned(
-        bottom: 15.0,
-        right: 0.0,
-        child: Container(
-            width: MediaQuery.sizeOf(context).width * 0.8,
-            height: MediaQuery.sizeOf(context).height * 0.09,
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(30.0), // Adjust the values as needed
-                bottomLeft: Radius.circular(30.0),
-              ),
-              boxShadow: (!themeController.isSavedDarkMode())? <BoxShadow>[
-                BoxShadow(
-                    color: Theme.of(context).colorScheme.surface.withOpacity(0.15),
-                    blurRadius: 13.0,
-                    offset: const Offset(0, 0)
-                )
-              ]:[],
-            ),
-            child: Padding(
-              padding:
-              const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  // Avatar(url: radio.img),
-                  Avatar(url: radio.img,
-                    boxShadows: (!themeController.isSavedDarkMode())? <BoxShadow>[
-                      BoxShadow(
-                          color: Theme.of(context).colorScheme.surface.withOpacity(0.15),
-                          blurRadius: 13.0,
-                          offset: const Offset(0, 0)
-                      )
-                    ]:[],
-                  ),
-                  const SizedBox(
-                    width: 16,
-                  ),
-                  Flexible(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              width: 10.0,
-                              height: 10.0,
-                              decoration: BoxDecoration(
-                                color: (controller.isPlaying.value)
-                                    ? Colors.green.withOpacity(0.8)
-                                    : Colors.red.withOpacity(0.8),
-                                shape: BoxShape.circle,
-                              ),
-                            ),
-                            const SizedBox(width: 6),
-                            Text(controller.displayStatus.value.msg,
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 3,
-                        ),
-                        Text(
-                          radio.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 14,
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 3,
-                        ),
-                        Text(
-                          radio.wave,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            )));
   }
 
   PreferredSizeWidget _appBar(BuildContext context) {
@@ -406,59 +306,73 @@ class HomePage extends StatelessWidget {
                 menuTxt: "Settings",
                 icon: const Icon(Icons.settings_outlined,),
                 onTap: () => {
-                      showModalBottomSheet(
+                      showModalBottomSheet<dynamic>(
                           backgroundColor: Colors.transparent,
                           context: context,
                           builder: (context) {
-                            return Container(
-                              height: MediaQuery.of(context).size.height * 0.25,
-                              decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(30),
-                                      topLeft: Radius.circular(30))),
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 16.0),
-                                    child: Text("Settings",
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold
-                                        )
-                                    ),
+                            return Wrap(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      borderRadius: const BorderRadius.only(
+                                          topRight: Radius.circular(30),
+                                          topLeft: Radius.circular(30))),
+                                  child: Column(
+                                    children: [
+                                      Container(
+                                        width: 65,
+                                        height: 5,
+                                        margin: const EdgeInsets.symmetric(vertical: 10,horizontal: 0),
+                                        decoration:  BoxDecoration(
+                                            color: Theme.of(context).colorScheme.surface,
+                                            borderRadius: const BorderRadius.all(Radius.circular(2),),
+                                        ),
+
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 10.0),
+                                        child: Text("Settings",
+                                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold
+                                            )
+                                        ),
+                                      ),
+                                      ListTile(
+                                        trailing: Switch.adaptive(
+                                          value: themeController.isDarkMode(),
+                                          onChanged: (bool value) {
+                                            themeController.changeThemeMode(value);
+                                          },
+                                        ),
+                                        title: Text('Dark Theme',
+                                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                                fontWeight: FontWeight.w800
+                                            )
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 8, vertical: 0),
+                                        child: Divider(height: 1, color: Theme.of(context).dividerColor,),
+                                      ),
+                                      ListTile(
+                                        title: Text('Clear cache',
+                                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                                fontWeight: FontWeight.w800
+                                            )
+                                        ),
+                                        onTap: () => {
+                                          Navigator.of(context).pop(),
+                                        },
+                                      ),
+                                      const SizedBox(height: 45,)
+                                    ],
                                   ),
-                                  ListTile(
-                                    trailing: Switch(
-                                      value: themeController.isSavedDarkMode(),
-                                      onChanged: (bool value) {
-                                        themeController.changeThemeMode(value);
-                                      },
-                                    ),
-                                    title: Text('Dark Theme',
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w800
-                                        )
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 0),
-                                    child: Divider(height: 1, color: Theme.of(context).dividerColor,),
-                                  ),
-                                  ListTile(
-                                    title: Text('Clear cache',
-                                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w800
-                                        )
-                                    ),
-                                    onTap: () => {
-                                      Navigator.of(context).pop(),
-                                    },
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             );
                           })
                     })

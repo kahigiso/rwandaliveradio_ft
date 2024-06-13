@@ -43,7 +43,7 @@ class Themes {
             fontWeight: FontWeight.w700),
         bodyMedium: GoogleFonts.actor(
             color: _themes.lightText,
-            fontSize: 15,
+            fontSize: 17,
             fontWeight: FontWeight.w500),
         bodySmall: GoogleFonts.actor(
           color: _themes.lightText,
@@ -80,7 +80,7 @@ class Themes {
               fontWeight: FontWeight.w700),
           bodyMedium: GoogleFonts.actor(
               color: _themes.darkText,
-              fontSize: 15,
+              fontSize: 17,
               fontWeight: FontWeight.w500),
           bodySmall: GoogleFonts.actor(
             color: _themes.darkText,
