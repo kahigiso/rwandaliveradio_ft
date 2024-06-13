@@ -13,6 +13,7 @@ class AppBg extends StatelessWidget {
         color:  Theme.of(context).colorScheme.primary,
       ),
       child: Scaffold(
+        extendBodyBehindAppBar: true,
         backgroundColor: Colors.transparent,
         appBar: appBar,
         body: body,

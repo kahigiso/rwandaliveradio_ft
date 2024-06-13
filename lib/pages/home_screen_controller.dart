@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:rwandaliveradio_fl/services/http_services.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '../models/radio_dto.dart';
@@ -22,6 +24,7 @@ enum DisplayStatusIndicator { red, green, yellow }
 
 class HomeScreenController extends GetxController {
   RxBool loading = false.obs;
+  RxBool dataFetchingFailed = false.obs;
   RxBool isDark = false.obs;
   RxList<RadioModel> radios = <RadioModel>[].obs;
   Rx<RadioModel?> currentPlayingRadio = (null as RadioModel?).obs;
@@ -35,6 +38,11 @@ class HomeScreenController extends GetxController {
   Rx<DisplayStatus> displayStatus = (DisplayStatus.buffering).obs;
   Rx<DisplayStatusIndicator> displayStatusIndicator =
       (DisplayStatusIndicator.yellow).obs;
+  final _storage = GetStorage();
+  final _data = "data";
+  final _jsonEncoder = const JsonEncoder();
+  final _jsonDecoder = const JsonDecoder();
+  final _cachedTime = "cached_time";
 
   @override
   void onInit() {
@@ -43,8 +51,8 @@ class HomeScreenController extends GetxController {
     _getRadios();
   }
 
-  void initializePlayer(){
-    if(assetsAudioPlayer != null) assetsAudioPlayer?.dispose();
+  void initializePlayer() {
+    if (assetsAudioPlayer != null) assetsAudioPlayer?.dispose();
     assetsAudioPlayer = AssetsAudioPlayer.newPlayer();
     onError();
     registerObservers();
@@ -78,14 +86,13 @@ class HomeScreenController extends GetxController {
       isBuffering.value = val;
       updateDisplayStatus();
     });
-    assetsAudioPlayer?.playerState.listen((val){
+    assetsAudioPlayer?.playerState.listen((val) {
       print("======= *playerState $val");
-      if(val == PlayerState.stop){
+      if (val == PlayerState.stop) {
         isStopped.value = true;
         updateDisplayStatus();
       }
     });
-
   }
 
   void updateDisplayStatus() {
@@ -105,6 +112,10 @@ class HomeScreenController extends GetxController {
     }
   }
 
+  bool isCurrent(RadioModel radio){
+    return radio.url == currentPlayingRadio.value?.url;
+  }
+
   void changeTheme(bool value) {
     isDark.value = value;
   }
@@ -115,7 +126,8 @@ class HomeScreenController extends GetxController {
   }
 
   Future<void> playNewUrl(String url) async {
-    print(" KKKk========= isPlaying.value ${isPlaying.value} isBuffering.value ${isBuffering.value} isStopped.value ${isStopped.value} isError.value ${isError.value}");
+    print(
+        " KKKk========= isPlaying.value ${isPlaying.value} isBuffering.value ${isBuffering.value} isStopped.value ${isStopped.value} isError.value ${isError.value}");
     try {
       if (isPlaying.value || isBuffering.value) {
         await assetsAudioPlayer?.stop();
@@ -136,17 +148,28 @@ class HomeScreenController extends GetxController {
   }
 
   void onPlayButtonClicked() {
-    print(" ****========= isPlaying.value ${isPlaying.value} isBuffering.value ${isBuffering.value} isStopped.value ${isStopped.value} isError.value ${isError.value} ===== ++");
-    if(isError.value) {
+    print(
+        " ****========= isPlaying.value ${isPlaying.value} isBuffering.value ${isBuffering.value} isStopped.value ${isStopped.value} isError.value ${isError.value} ===== ++");
+    if (isError.value) {
       initializePlayer();
       playNewUrl(currentPlayingRadio.value!.url);
-    }else {
+    } else {
       assetsAudioPlayer?.playOrPause();
     }
   }
 
+  void onStop() {
+    assetsAudioPlayer?.stop();
+   // reset();
+  }
+
+  void reset(){
+    currentPlayingRadio.value == null;
+    initializePlayer();
+  }
+
   void onPrevious() {
-    if(isError.value) {
+    if (isError.value) {
       initializePlayer();
     }
     var currentIndex = indexOfCurrentPlayingRadio();
@@ -157,7 +180,7 @@ class HomeScreenController extends GetxController {
   }
 
   void onNext() {
-    if(isError.value) {
+    if (isError.value) {
       initializePlayer();
     }
     var currentIndex = indexOfCurrentPlayingRadio();
@@ -194,17 +217,50 @@ class HomeScreenController extends GetxController {
 
   Future<void> _getRadios() async {
     loading.value = true;
-    await Future.delayed(const Duration(seconds: 6));
-    HttpServices httpServices = Get.find();
-    var response = await httpServices.get("allradios");
-    if (response.statusCode == 200) {
-      // FIXME response can be null unhandled exception " Error: HttpException: Connection closed before full header was received, uri ="
-      radios.value = response.data
-          .map<RadioModel>(
-              (radioJson) => RadioDto.fromJson(radioJson).toRadioModel())
-          .toList();
+    if (_shouldFetchRemoteData()) {
+      _fetRemoteData();
+    } else {
+      final data = _storage.read(_data);
+      radios.value = _parseData(_jsonDecoder.convert(data));
     }
-    //TODO check for different status and add a view event handler object
     loading.value = false;
   }
+
+  List<RadioModel> _parseData(dynamic data) {
+    return data
+        .map<RadioModel>(
+            (radioJson) => RadioDto.fromJson(radioJson).toRadioModel())
+        .toList();
+  }
+
+  Future<void> _fetRemoteData() async {
+    try{
+      HttpServices httpServices = Get.find();
+      var response = await httpServices.get("allradios");
+      if (response.statusCode == 200) {
+        final data = response.data;
+        radios.value = _parseData(data);
+        _storage.write(_cachedTime, DateTime.now().toString());
+        _storage.write(_data, _jsonEncoder.convert(data));
+      } else {
+        throw("response.statusCode not 200");
+      }
+      dataFetchingFailed.value = false;
+    }catch(e){
+      print(e);
+      dataFetchingFailed.value = true;
+    }
+  }
+
+  /// Check if we need to fetch remote data
+  bool _shouldFetchRemoteData() {
+    try {
+      final cachedTime = _storage.read(_cachedTime);
+      return _storage.read(_data) == null || DateTime.now().difference(DateTime.parse(cachedTime)).inDays > 0;
+    } catch(e) {
+      return true;
+    }
+  }
+
+
 }

@@ -6,7 +6,7 @@ import 'package:rwandaliveradio_fl/pages/about_page.dart';
 import 'package:rwandaliveradio_fl/pages/contact_page.dart';
 import 'package:rwandaliveradio_fl/pages/home_page.dart';
 import 'package:rwandaliveradio_fl/pages/player_page.dart';
-import 'package:rwandaliveradio_fl/services/ThemeHandler.dart';
+import 'package:rwandaliveradio_fl/services/theme_handler.dart';
 import 'package:rwandaliveradio_fl/utils/utils.dart';
 import 'themes.dart';
 
@@ -16,6 +16,9 @@ void main() async {
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown
   ]);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle().copyWith(
+    statusBarColor: Colors.transparent,
+  ));
   AssetsAudioPlayer.setupNotificationsOpenAction((notification) {
     return true;
   });
