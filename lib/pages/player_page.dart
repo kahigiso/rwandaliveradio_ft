@@ -5,6 +5,7 @@ import 'package:rwandaliveradio_fl/models/radio_model.dart';
 import 'package:rwandaliveradio_fl/services/theme_handler.dart';
 import 'package:rwandaliveradio_fl/widgets/avatar.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import '../models/screen_state.dart';
 import '../widgets/app_bg.dart';
 import 'home_screen_controller.dart';
 
@@ -34,27 +35,9 @@ class PlayerPage extends StatelessWidget {
 
   void _animateTo() {
     controller.itemScrollController.value?.scrollTo(
-        index: controller.indexOfCurrentPlayingRadio(),
+        index: controller.indexOfCurrent(),
         duration: const Duration(seconds: 1),
         curve: Curves.fastOutSlowIn);
-  }
-
-  MaterialColor _getIndicatorColor(
-      DisplayStatusIndicator displayStatusIndicator) {
-    switch (displayStatusIndicator) {
-      case DisplayStatusIndicator.red:
-        {
-          return Colors.red;
-        }
-      case DisplayStatusIndicator.yellow:
-        {
-          return Colors.yellow;
-        }
-      default:
-        {
-          return Colors.green;
-        }
-    }
   }
 
   IconData _getPlayerIcon() {
@@ -74,7 +57,7 @@ class PlayerPage extends StatelessWidget {
               children: [
               const SizedBox(height: 20,),
                 Avatar(
-                  url: controller.currentPlayingRadio.value?.img ?? "",
+                  url: controller.currentRadio.value?.img ?? "",
                   size: (MediaQuery.sizeOf(context).width * 0.30) / 0.6,
                   radius: MediaQuery.sizeOf(context).width * 0.30,
                   boxShadows: (!themeHandler.isDarkMode())?  <BoxShadow>[
@@ -95,7 +78,7 @@ class PlayerPage extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                            controller.currentPlayingRadio.value?.shortWave ??
+                            controller.currentRadio.value?.shortWave ??
                                 "",
                             maxLines: 1,
                             textAlign: TextAlign.center,
@@ -103,7 +86,7 @@ class PlayerPage extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 25.0, top: 8),
                           child: Text(
-                            controller.currentPlayingRadio.value?.name ?? "",
+                            controller.currentRadio.value?.name ?? "",
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
@@ -123,65 +106,61 @@ class PlayerPage extends StatelessWidget {
                                   offset: const Offset(0, 0))
                             ]:[],
                           ),
-                          child: Column(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    onPressed: () => {
-                                      if (!controller.isFirst())
-                                        {controller.onPrevious(), _animateTo()}
-                                    },
-                                    icon: Icon(
-                                      Icons.skip_previous_rounded,
-                                      size: 40,
-                                      color: (!controller.isFirst())
-                                          ? Theme.of(context).iconTheme.color
-                                          : Theme.of(context).indicatorColor,
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
-                                  (controller.isBuffering.value && !controller.isError.value)
-                                      ?Padding(
-                                    padding: const EdgeInsets.all(18.0),
-                                    child: SizedBox(
-                                      height: 50,
-                                      width: 50,
-                                      child:
-                                      CircularProgressIndicator(
-                                        strokeWidth: 4,
-                                        backgroundColor: Theme.of(context).iconTheme.color,
-                                      ),
-                                    ),
-                                  ):IconButton(
-                                          onPressed: () => {
-                                                controller.onPlayButtonClicked()
-                                              },
-                                          icon: Icon(
-                                            _getPlayerIcon(),
-                                            size: 70,
-                                          )),
-                                  const SizedBox(
-                                    width: 20,
-                                  ),
-                                  IconButton(
-                                    onPressed: () => {
-                                      if (!controller.isLast())
-                                        {controller.onNext(), _animateTo()}
-                                    },
-                                    icon: Icon(
-                                      Icons.skip_next_rounded,
-                                      size: 40,
-                                      color: (!controller.isLast())
-                                          ? Theme.of(context).iconTheme.color
-                                          : Theme.of(context).indicatorColor,
-                                    ),
-                                  )
-                                ],
+                              IconButton(
+                                onPressed: () => {
+                                  if (!controller.isFirst())
+                                    {controller.onPrevious(), _animateTo()}
+                                },
+                                icon: Icon(
+                                  Icons.skip_previous_rounded,
+                                  size: 40,
+                                  color: (!controller.isFirst())
+                                      ? Theme.of(context).iconTheme.color
+                                      : Theme.of(context).indicatorColor,
+                                ),
                               ),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              (controller.isBuffering.value)
+                                  ?Padding(
+                                padding: const EdgeInsets.all(18.0),
+                                child: SizedBox(
+                                  height: 50,
+                                  width: 50,
+                                  child:
+                                  CircularProgressIndicator(
+                                    strokeWidth: 4,
+                                    backgroundColor: Theme.of(context).iconTheme.color,
+                                  ),
+                                ),
+                              ):IconButton(
+                                      onPressed: () => {
+                                            controller.onPlay()
+                                          },
+                                      icon: Icon(
+                                        _getPlayerIcon(),
+                                        size: 70,
+                                      )),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              IconButton(
+                                onPressed: () => {
+                                  if (!controller.isLast())
+                                    {controller.onNext(), _animateTo()}
+                                },
+                                icon: Icon(
+                                  Icons.skip_next_rounded,
+                                  size: 40,
+                                  color: (!controller.isLast())
+                                      ? Theme.of(context).iconTheme.color
+                                      : Theme.of(context).indicatorColor,
+                                ),
+                              )
                             ],
                           ),
                         ),
@@ -224,12 +203,12 @@ class PlayerPage extends StatelessWidget {
             child: ScrollablePositionedList.builder(
               itemScrollController: controller.itemScrollController.value,
               scrollDirection: Axis.horizontal,
-              itemCount: controller.radios.length,
+              itemCount: (controller.state.value as LoadedState).data.length,
               itemBuilder: (context, index) {
-                final item = controller.radios[index];
+                final item = (controller.state.value as LoadedState).data[index];
                 return GestureDetector(
                   onTap: () => {
-                    controller.onRadioClicked(item.url),
+                    controller.onPlayRadio(item),
                   },
                   child: _listItemUi(context, item),
                 );

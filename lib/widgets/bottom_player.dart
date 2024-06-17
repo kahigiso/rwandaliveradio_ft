@@ -10,12 +10,9 @@ class BottomPlayer extends StatelessWidget {
   final themeController = Get.put(
     ThemeHandler(),
   );
-  final controller = Get.put(
-    HomeScreenController(),
-  );
-  BottomPlayer({super.key});
+  final HomeScreenController controller;
 
-
+  BottomPlayer({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +49,7 @@ class BottomPlayer extends StatelessWidget {
                 children: [
                   // Avatar(url: radio.img),
                   Avatar(
-                    url: controller.currentPlayingRadio.value!.img,
+                    url: controller.currentRadio.value!.img,
                     boxShadows: (!themeController.isDarkMode())
                         ? <BoxShadow>[
                             BoxShadow(
@@ -79,7 +76,7 @@ class BottomPlayer extends StatelessWidget {
                               height: 3,
                             ),
                             Text(
-                              controller.currentPlayingRadio.value!.name,
+                              controller.currentRadio.value!.name,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style:
@@ -92,7 +89,7 @@ class BottomPlayer extends StatelessWidget {
                               height: 3,
                             ),
                             Text(
-                              controller.currentPlayingRadio.value!.wave,
+                              controller.currentRadio.value!.wave,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: Theme.of(context).textTheme.bodySmall,
@@ -100,28 +97,27 @@ class BottomPlayer extends StatelessWidget {
                           ],
                         ),
                         const SizedBox(
-                          width: 10,
+                          width: 5,
                         ),
-                        (controller.isBuffering.value && !controller.isError.value)
-                            ?SizedBox(
-                              height: 30,
-                              width: 30,
-                              child:
-                              CircularProgressIndicator(
-                                strokeWidth: 3,
-                                backgroundColor: Theme.of(context).iconTheme.color,
+                        (controller.isBuffering.value)
+                            ?Center(
+                              child: SizedBox(
+                                height: 25,
+                                width: 25,
+                                child:
+                                CircularProgressIndicator(
+                                  strokeWidth: 3,
+                                  backgroundColor: Theme.of(context).iconTheme.color,
+                                ),
                               ),
                             ):IconButton(
                             onPressed: () => {
-                              controller.onPlayButtonClicked()
+                              controller.onPlay()
                             },
                             icon: Icon(
                               (controller.isPlaying.value)? Icons.pause_circle_filled_rounded: Icons.play_circle_fill_rounded,
-                              size: 45,
+                              size: 35,
                             )),
-                        const SizedBox(
-                          width:  5,
-                        ),
                         IconButton(
                             onPressed: () => {
                               controller.onStop()
