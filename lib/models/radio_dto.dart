@@ -43,6 +43,13 @@ class RadioDto {
     return RadioModel(url, name, img.trim(), order, wave, shortWave, desc, infoSrc);
   }
 
+  static List<RadioModel> parseData(dynamic data) {
+    return data
+        .map<RadioModel>(
+            (radioJson) => RadioDto.fromJson(radioJson).toRadioModel())
+        .toList();
+  }
+
   String getShortWave() {
     if(wave.isEmpty) {
       return "Internet Radio";

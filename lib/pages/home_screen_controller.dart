@@ -1,20 +1,15 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:rwandaliveradio_fl/services/http_services.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import '../models/radio_dto.dart';
 import '../models/radio_model.dart';
 import '../models/screen_state.dart';
+import '../repositories/data_repository.dart';
 
 
 class HomeScreenController extends GetxController {
 
   final Rx<ScreenState> state = (LoadingState() as ScreenState).obs;
-  final RxBool dataFetchingFailed = false.obs;
-  final RxBool isDark = false.obs;
   final RxBool isPlaying = false.obs;
   final RxBool isBuffering = false.obs;
   final RxBool isError = false.obs;
@@ -23,19 +18,13 @@ class HomeScreenController extends GetxController {
   final Rx<ItemScrollController?> itemScrollController =
       (ItemScrollController()).obs;
   late AssetsAudioPlayer _assetsAudioPlayer;
-  final _storage = GetStorage();
-  final _data = "data";
-  final _jsonEncoder = const JsonEncoder();
-  final _jsonDecoder = const JsonDecoder();
-  final _cachedTime = "cached_time";
+  final DataRepository dataRepository = Get.find();
 
 
   @override
   void onInit() async {
     super.onInit();
-    await _getRadios().whenComplete(() async {
-      await initializePlayer(); //FIXME Check for error
-    });
+    await _initialize();
   }
 
   @override
@@ -44,19 +33,28 @@ class HomeScreenController extends GetxController {
     super.onClose();
   }
 
-  void changeTheme(bool value) {
-    isDark.value = value;
+  Future<void> _initialize() async {
+    state.value = LoadingState();
+    await dataRepository.getRadios().then((value) {
+      state.value = value;
+    }).catchError((error, stackTrace) {
+      print("error: $error stackTrace: $stackTrace");
+    }).whenComplete(() async {
+      if(state.value is LoadedState) {
+        await _playerSetup(); //FIXME Check for error
+      }
+    });
   }
 
-  //PLayer setup
-  Future<void> initializePlayer() async {
+  //Player setup
+  Future<void> _playerSetup() async {
     _assetsAudioPlayer = AssetsAudioPlayer.newPlayer();
-    registerObservers();
-    onError();
-    await openPlayer();
+    _registerObservers();
+    _onError();
+    await _openPlayer();
   }
 
-  Future<void> openPlayer() async {
+  Future<void> _openPlayer() async {
     try {
     await _assetsAudioPlayer.open(
         Playlist(audios: _getAudios((state.value as LoadedState).data), startIndex: 0),
@@ -72,18 +70,19 @@ class HomeScreenController extends GetxController {
     }
   }
 
-  void onError() {
+  void _onError() {
     _assetsAudioPlayer.onErrorDo = (errorHandler) {
       print("handled ===> ${errorHandler.error.message}");
       isError.value = true;
-
       onStop();
     };
   }
 
-  void registerObservers(){
+  void _registerObservers(){
     _assetsAudioPlayer.current.listen((val) {
-      _setCurrentRadio((state.value as LoadedState).data.firstWhere((radio) => radio.url == val?.audio.audio.path));
+      if(state.value is LoadedState) {
+        _setCurrentRadio((state.value as LoadedState).data.firstWhere((radio) => radio.url == val?.audio.audio.path));
+      }
     });
     _assetsAudioPlayer.isPlaying.listen((val) {
       isPlaying.value = val;
@@ -92,7 +91,6 @@ class HomeScreenController extends GetxController {
       isBuffering.value = val;
     });
     _assetsAudioPlayer.playerState.listen((val) {
-      print("playerState changed: $val");
       if (val == PlayerState.stop) {
         isBuffering.value = false;
       }
@@ -100,13 +98,13 @@ class HomeScreenController extends GetxController {
   }
   //End of Player setup
 
-  bool isAlreadyPlaying(RadioModel radio){
-    return radio.url == currentRadio.value?.url;
-  }
+  // bool isAlreadyPlaying(RadioModel radio){
+  //   return radio.url == currentRadio.value?.url;
+  // }
+
   void _setCurrentRadio(RadioModel radio){
     currentRadio.value = radio;
   }
-
 
   //Player commands
   void onPlayRadio(RadioModel radio) {
@@ -183,57 +181,7 @@ class HomeScreenController extends GetxController {
   }
   Future<void> _refreshData() async {
     state.value = LoadingState();
-    await _storage.remove(_data);
-    await _storage.remove(_cachedTime);
-    _getRadios();
-  }
-  Future<void> _getRadios() async {
-    state.value = LoadingState();
-    if (_shouldFetchRemoteData()) {
-      _fetRemoteData();
-    } else {
-      final data = _storage.read(_data);
-      if( data != null) {
-        state.value = LoadedState(_parseData(_jsonDecoder.convert(data)));
-      } else { //Edge case
-        _fetRemoteData();
-      }
-    }
+    dataRepository.getRadios(); //FIXME revisit
   }
 
-  List<RadioModel> _parseData(dynamic data) {
-    return data
-        .map<RadioModel>(
-            (radioJson) => RadioDto.fromJson(radioJson).toRadioModel())
-        .toList();
-  }
-
-  Future<void> _fetRemoteData() async {
-    try {
-      HttpServices httpServices = Get.find();
-      var response = await httpServices.get("allradios");
-      if (response.statusCode == 200) {
-        final data = response.data;
-        state.value = LoadedState(_parseData(data));
-        _storage.write(_cachedTime, DateTime.now().toString());
-        _storage.write(_data, _jsonEncoder.convert(data));
-      } else {
-        throw ("response.statusCode not 200");
-      }
-    } catch (exception) {
-      print(exception);
-      state.value = ErrorState(exception.toString());
-    }
-  }
-
-  /// Check if we need to fetch remote data
-  bool _shouldFetchRemoteData() {
-    try {
-      final cachedTime = _storage.read(_cachedTime);
-      return _storage.read(_data) == null ||
-          DateTime.now().difference(DateTime.parse(cachedTime)).inDays > 0;
-    } catch (e) {
-      return true;
-    }
-  }
 }
