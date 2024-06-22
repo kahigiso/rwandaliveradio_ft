@@ -7,6 +7,7 @@ import 'package:rwandaliveradio_fl/pages/contact_page.dart';
 import 'package:rwandaliveradio_fl/pages/home_page.dart';
 import 'package:rwandaliveradio_fl/pages/player_page.dart';
 import 'package:rwandaliveradio_fl/services/theme_handler.dart';
+import 'package:rwandaliveradio_fl/utils/constants.dart';
 import 'package:rwandaliveradio_fl/utils/utils.dart';
 import 'themes.dart';
 
@@ -39,12 +40,12 @@ class RwandaLiveRadioApp extends StatelessWidget {
       darkTheme: Themes.darkTheme,
       debugShowCheckedModeBanner: false,
       routes: {
-        "/home": (context) => HomePage(),
-        "player": (context) => PlayerPage(),
-        "contact": (context) => const ContactPage(),
-        "about": (context) => const AboutPage(),
+        "/${Constants.homeScreen}": (context) => HomePage(),
+        Constants.playerScreen: (context) => PlayerPage(),
+        Constants.contactScreen: (context) => const ContactPage(),
+        Constants.contactScreen: (context) => const AboutPage(),
       },
-      initialRoute: "/home",
+      initialRoute: "/${Constants.homeScreen}",
     );
   }
 }

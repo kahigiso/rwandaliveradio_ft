@@ -10,14 +10,12 @@ import '../widgets/app_bg.dart';
 import 'home_screen_controller.dart';
 
 class PlayerPage extends StatelessWidget {
-  final controller = Get.put(
+  final homeController = Get.put(
     HomeScreenController(),
   );
   final themeHandler = Get.put(
     ThemeHandler(),
   );
-
-
 
   PlayerPage({super.key});
 
@@ -28,20 +26,21 @@ class PlayerPage extends StatelessWidget {
               backgroundColor: Colors.transparent,
               forceMaterialTransparency: true,
               elevation: 0,
-              iconTheme: Theme.of(context).iconTheme,),
+              iconTheme: Theme.of(context).iconTheme,
+          ),
           body: _buildUi(context),
         ));
   }
 
-  void _animateTo() {
-    controller.itemScrollController.value?.scrollTo(
-        index: controller.indexOfCurrent(),
+  void _scrollTo() {
+    homeController.playerListScrollController.scrollTo(
+        index: homeController.currentRadioIndex,
         duration: const Duration(seconds: 1),
         curve: Curves.fastOutSlowIn);
   }
 
   IconData _getPlayerIcon() {
-    if (controller.isPlaying.value) {
+    if (homeController.isPlaying) {
       return Icons.pause_circle_filled_rounded;
     } else {
       return Icons.play_circle_fill_rounded;
@@ -57,7 +56,7 @@ class PlayerPage extends StatelessWidget {
               children: [
               const SizedBox(height: 20,),
                 Avatar(
-                  url: controller.currentRadio.value?.img ?? "",
+                  url: homeController.currentRadio?.img ?? "",
                   size: (MediaQuery.sizeOf(context).width * 0.30) / 0.6,
                   radius: MediaQuery.sizeOf(context).width * 0.30,
                   boxShadows: (!themeHandler.isDarkMode())?  <BoxShadow>[
@@ -78,7 +77,7 @@ class PlayerPage extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                            controller.currentRadio.value?.shortWave ??
+                            homeController.currentRadio?.shortWave ??
                                 "",
                             maxLines: 1,
                             textAlign: TextAlign.center,
@@ -86,7 +85,7 @@ class PlayerPage extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 25.0, top: 8),
                           child: Text(
-                            controller.currentRadio.value?.name ?? "",
+                            homeController.currentRadio?.name ?? "",
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
@@ -110,22 +109,18 @@ class PlayerPage extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               IconButton(
-                                onPressed: () => {
-                                  if (!controller.isFirst())
-                                    {controller.onPrevious(), _animateTo()}
-                                },
+                                disabledColor: Theme.of(context).indicatorColor,
+                                onPressed: (homeController.isFirst())? null : () => {homeController.onPrevious(), _scrollTo()},
                                 icon: Icon(
                                   Icons.skip_previous_rounded,
                                   size: 40,
-                                  color: (!controller.isFirst())
-                                      ? Theme.of(context).iconTheme.color
-                                      : Theme.of(context).indicatorColor,
+                                  color:(homeController.isFirst())? null : Theme.of(context).iconTheme.color,
                                 ),
                               ),
                               const SizedBox(
                                 width: 20,
                               ),
-                              (controller.isBuffering.value)
+                              (homeController.isBuffering)
                                   ?Padding(
                                 padding: const EdgeInsets.all(18.0),
                                 child: SizedBox(
@@ -139,7 +134,7 @@ class PlayerPage extends StatelessWidget {
                                 ),
                               ):IconButton(
                                       onPressed: () => {
-                                            controller.onPlay()
+                                            homeController.onPlay()
                                           },
                                       icon: Icon(
                                         _getPlayerIcon(),
@@ -149,16 +144,12 @@ class PlayerPage extends StatelessWidget {
                                 width: 20,
                               ),
                               IconButton(
-                                onPressed: () => {
-                                  if (!controller.isLast())
-                                    {controller.onNext(), _animateTo()}
-                                },
+                                disabledColor: Theme.of(context).indicatorColor,
+                                onPressed: (homeController.isLast())? null : () => {homeController.onNext(), _scrollTo()},
                                 icon: Icon(
                                   Icons.skip_next_rounded,
                                   size: 40,
-                                  color: (!controller.isLast())
-                                      ? Theme.of(context).iconTheme.color
-                                      : Theme.of(context).indicatorColor,
+                                  color:(homeController.isLast())? null : Theme.of(context).iconTheme.color,
                                 ),
                               )
                             ],
@@ -201,16 +192,16 @@ class PlayerPage extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 12.0),
             height: 170,
             child: ScrollablePositionedList.builder(
-              itemScrollController: controller.itemScrollController.value,
+              itemScrollController: homeController.playerListScrollController,
+              initialScrollIndex: homeController.currentRadioIndex,
               scrollDirection: Axis.horizontal,
-              itemCount: (controller.state.value as LoadedState).data.length,
+              itemCount: (homeController.state as LoadedState).data.length,
               itemBuilder: (context, index) {
-                final item = (controller.state.value as LoadedState).data[index];
                 return GestureDetector(
                   onTap: () => {
-                    controller.onPlayRadio(item),
+                    homeController.onPlayRadio(index),
                   },
-                  child: _listItemUi(context, item),
+                  child: _listItemUi(context, homeController.getRadioForIndex(index)),
                 );
               },
             ),
@@ -225,7 +216,7 @@ class PlayerPage extends StatelessWidget {
       width: MediaQuery.sizeOf(context).width * 0.3,
       margin: const EdgeInsets.only( top: 10, left: 10,bottom: 15),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.tertiary,
+        color: (radio.url == homeController.currentRadio?.url) ? Theme.of(context).colorScheme.surfaceDim.withOpacity(0.7) :Theme.of(context).colorScheme.tertiary,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         boxShadow: (!themeHandler.isDarkMode())? <BoxShadow>[
           BoxShadow(
@@ -257,7 +248,8 @@ class PlayerPage extends StatelessWidget {
             padding: const EdgeInsets.only(left: 8.0),
             child: Text(
               radio.name,
-              maxLines: 2,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),
@@ -269,6 +261,7 @@ class PlayerPage extends StatelessWidget {
             child: Text(
               radio.shortWave ?? "",
               maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ),

@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'package:get_storage/get_storage.dart';
+import 'package:logging/logging.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
 import '../models/radio_dto.dart';
+import '../utils/constants.dart';
 
 class LocalDatabase {
-  static String cachedDataKey = "cached_data_key";
-  static String cachedTimeKey = "cached_time_key";
+  final log = Logger('LocalDatabase');
   final _storage = GetStorage();
   final _jsonEncoder = const JsonEncoder();
   final _jsonDecoder = const JsonDecoder();
@@ -14,7 +15,7 @@ class LocalDatabase {
     return RadioDto.parseData(_jsonDecoder.convert(await read(key) as String));
   }
 
-  Future<dynamic> read(String key) async {
+  dynamic read(String key) {
     return _storage.read(key);
   }
 
@@ -27,12 +28,14 @@ class LocalDatabase {
   }
 
   Future<void> saveLocalToLocalDb(List<dynamic> data) async {
-    write(cachedTimeKey, DateTime.now().toString());
-    write(cachedDataKey, _jsonEncoder.convert(data));
+    write(Constants.cachedTimeKey, DateTime.now().toString());
+    write(Constants.cachedDataKey, _jsonEncoder.convert(data));
+    log.info("Local db successfully updated");
   }
 
   Future<void> clearDb() async {
-    delete(cachedTimeKey);
-    delete(cachedDataKey);
+    delete(Constants.cachedTimeKey);
+    delete(Constants.cachedDataKey);
+    log.info("Local db successfully cleared");
   }
 }

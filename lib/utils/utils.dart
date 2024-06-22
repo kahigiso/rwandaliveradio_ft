@@ -7,8 +7,8 @@ import '../services/http_services.dart';
 
 Future<void> registerServices() async {
   await GetStorage.init();
+  Get.put(LocalDatabase());
   Get.put(ThemeHandler());
   Get.put(HttpServices());
-  Get.put(LocalDatabase());
   Get.put(DataRepository());
 }
