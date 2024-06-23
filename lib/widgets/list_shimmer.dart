@@ -9,8 +9,19 @@ class ListShimmer extends StatelessWidget {
     return ListView.builder(
         primary: false,
         shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
         itemCount: itemNum,
         itemBuilder: (context, index) {
+          if(index == 0 ){
+            return Container(
+              color: Colors.transparent,
+              alignment: Alignment.bottomLeft,
+              width: MediaQuery.sizeOf(context).width * 0.95,
+              height: MediaQuery.sizeOf(context).height * 0.125,
+              margin: const EdgeInsets.only(left: 14,bottom: 25, right: 18),
+              child: Container(color: Colors.grey.withOpacity(0.6), width: MediaQuery.sizeOf(context).width * 0.55, height: 30,),
+            );
+          }
           return Padding(
             padding: EdgeInsets.only(
               top: 6.0,
@@ -35,11 +46,11 @@ class ListShimmer extends StatelessWidget {
                       BoxDecoration(color: Colors.grey.withOpacity(0.6)),
                 ),
                 Container(
-                  width: MediaQuery.sizeOf(context).width * 0.8,
-                  height: 75,
+                  width: MediaQuery.sizeOf(context).width * 0.82,
+                  height: MediaQuery.sizeOf(context).height * 0.120,
                   decoration: BoxDecoration(
                     color: Colors.grey.withOpacity(0.6),
-                    borderRadius: const BorderRadius.all(Radius.circular(6)),
+                    borderRadius: const BorderRadius.all(Radius.circular(20)),
                   ),
                 ),
               ],

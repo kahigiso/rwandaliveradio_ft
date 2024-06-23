@@ -1,30 +1,28 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:logging/logging.dart';
 
 class HttpServices {
+  final log = Logger('LocalDatabase');
+  final baseUrl = "http://50.116.28.7:9000/";
   final Dio _dio = Dio();
-  
-  HttpServices(){
+
+  HttpServices() {
     _configureDio();
   }
 
   void _configureDio() {
-    _dio.options = BaseOptions(
-      baseUrl: "http://50.116.28.7:9000/",
-      queryParameters: {
-        //No query?
-      }
-    );
+    _dio.options = BaseOptions(baseUrl: baseUrl, queryParameters: {
+      /**No query?*/
+    });
   }
 
   Future<dynamic> get(String path) async {
-    try{
-      return  await _dio.get(path);
-    }catch(e){
-      if (kDebugMode) {
-        print(e.toString());
-      }
+    try {
+      return await _dio.get(path);
+    } catch (exception) {
+      log.severe(exception);
+      rethrow;
     }
   }
-  
 }

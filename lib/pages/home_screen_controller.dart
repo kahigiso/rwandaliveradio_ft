@@ -1,266 +1,189 @@
 import 'dart:async';
-import 'dart:convert';
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:rwandaliveradio_fl/services/http_services.dart';
+import 'package:rwandaliveradio_fl/utils/constants.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import '../models/radio_dto.dart';
 import '../models/radio_model.dart';
+import '../models/screen_state.dart';
+import '../repositories/data_repository.dart';
 
-enum DisplayStatus {
-  playing("Playing", "Now playing"),
-  buffering("Buffering", "Buffering ..."),
-  stop("Stop", "Stopped"),
-  error("Error", "Error occurred try again!");
-
-  const DisplayStatus(this.value, this.msg);
-
-  final String value;
-  final String msg;
-}
-
-enum DisplayStatusIndicator { red, green, yellow }
 
 class HomeScreenController extends GetxController {
-  RxBool loading = false.obs;
-  RxBool dataFetchingFailed = false.obs;
-  RxBool isDark = false.obs;
-  RxList<RadioModel> radios = <RadioModel>[].obs;
-  Rx<RadioModel?> currentPlayingRadio = (null as RadioModel?).obs;
-  final Rx<ItemScrollController?> itemScrollController =
-      (ItemScrollController()).obs;
-  AssetsAudioPlayer? assetsAudioPlayer = null;
-  RxBool isPlaying = false.obs;
-  RxBool isStopped = false.obs;
-  RxBool isBuffering = false.obs;
-  RxBool isError = false.obs;
-  Rx<DisplayStatus> displayStatus = (DisplayStatus.buffering).obs;
-  Rx<DisplayStatusIndicator> displayStatusIndicator =
-      (DisplayStatusIndicator.yellow).obs;
-  final _storage = GetStorage();
-  final _data = "data";
-  final _jsonEncoder = const JsonEncoder();
-  final _jsonDecoder = const JsonDecoder();
-  final _cachedTime = "cached_time";
+  //private variables
+  final Rx<ScreenState> _state = (LoadingState() as ScreenState).obs;
+  final RxBool _isPlaying = false.obs;
+  final RxBool _isBuffering = false.obs;
+  final RxBool _isError = false.obs;
+  final RxBool _isStopped = true.obs;
+  final RxBool _showHeaderTitle = false.obs;
+  final Rx<RadioModel?> _currentRadio = (null as RadioModel?).obs;
+  final RxInt _currentRadioIndex = (0).obs;
+  final Rx<ItemScrollController> _homeListScrollController = (ItemScrollController()).obs;
+  final Rx<ItemScrollController> _playerListScrollController = (ItemScrollController()).obs;
+  late AssetsAudioPlayer _assetsAudioPlayer;
+  final DataRepository _dataRepository = Get.find();
+  final Rx<ItemPositionsListener> _homeItemPositionsListener = (ItemPositionsListener.create()).obs;
+
+  //getters
+  ItemScrollController get homeListScrollController  => _homeListScrollController.value;
+  ItemScrollController get playerListScrollController  => _playerListScrollController.value;
+  ItemPositionsListener get homeItemPositionsListener  => _homeItemPositionsListener.value;
+  int get currentRadioIndex  => _currentRadioIndex.value;
+  RadioModel? get currentRadio => _currentRadio.value;
+  bool get showHeaderTitle => _showHeaderTitle.value;
+  bool get isPlaying => _isPlaying.value;
+  bool get isBuffering => _isBuffering.value;
+  bool get isError => _isError.value;
+  bool get isStopped => _isStopped.value;
+  ScreenState get state => _state.value;
+
+
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    initializePlayer();
-    _getRadios();
+    await _initialize();
   }
 
-  void initializePlayer() {
-    if (assetsAudioPlayer != null) assetsAudioPlayer?.dispose();
-    assetsAudioPlayer = AssetsAudioPlayer.newPlayer();
-    onError();
-    registerObservers();
-  }
-
-  //Callback in case of player error
-  void onError() {
-    assetsAudioPlayer?.onErrorDo = (errorHandler) {
-      print("handled ===> ${errorHandler.error.message}");
-      errorHandler.player.stop();
-      isError.value = true;
-      updateDisplayStatus();
-    };
+  Future<void> _initialize() async {
+    _state.value = LoadingState();
+    await _dataRepository.getRadios().then((value) {
+      _state.value = value;
+    }).catchError((error, stackTrace) {
+      print("error: $error stackTrace: $stackTrace");
+    }).whenComplete(() async {
+      if(_state.value is LoadedState) {
+        await _playerSetup();
+      }
+    });
   }
 
   @override
   void onClose() {
-    assetsAudioPlayer?.dispose();
+    _assetsAudioPlayer.dispose();
+    print("_assetsAudioPlayer is disposed");
     super.onClose();
   }
 
-  void registerObservers() {
-    assetsAudioPlayer?.playerState.listen((val) {
-      print("======= playerState $val");
-    });
-    assetsAudioPlayer?.isPlaying.listen((val) {
-      isPlaying.value = val;
-      updateDisplayStatus();
-    });
-    assetsAudioPlayer?.isBuffering.listen((val) {
-      isBuffering.value = val;
-      updateDisplayStatus();
-    });
-    assetsAudioPlayer?.playerState.listen((val) {
-      print("======= *playerState $val");
-      if (val == PlayerState.stop) {
-        isStopped.value = true;
-        updateDisplayStatus();
-      }
-    });
+  //Player setup
+  Future<void> _playerSetup() async {
+    _assetsAudioPlayer = AssetsAudioPlayer.withId(Constants.playerName);
+    _registerObservers();
+    _onError();
+    await _openPlayer();
   }
 
-  void updateDisplayStatus() {
-    if (isPlaying.value) {
-      displayStatus.value = DisplayStatus.playing;
-      displayStatusIndicator.value = DisplayStatusIndicator.green;
-    } else if (isBuffering.value && !isError.value) {
-      displayStatus.value = DisplayStatus.buffering;
-      displayStatusIndicator.value = DisplayStatusIndicator.yellow;
-    } else if (isStopped.value && !isError.value) {
-      displayStatus.value = DisplayStatus.stop;
-      displayStatusIndicator.value = DisplayStatusIndicator.red;
-    } else {
-      isBuffering.value = false;
-      displayStatus.value = DisplayStatus.error;
-      displayStatusIndicator.value = DisplayStatusIndicator.red;
-    }
-  }
-
-  bool isCurrent(RadioModel radio){
-    return radio.url == currentPlayingRadio.value?.url;
-  }
-
-  void changeTheme(bool value) {
-    isDark.value = value;
-  }
-
-  void onRadioClicked(String url) {
-    currentPlayingRadio.value = getRadioByUrl(url);
-    playNewUrl(url);
-  }
-
-  Future<void> playNewUrl(String url) async {
-    print(
-        " KKKk========= isPlaying.value ${isPlaying.value} isBuffering.value ${isBuffering.value} isStopped.value ${isStopped.value} isError.value ${isError.value}");
+  Future<void> _openPlayer() async {
     try {
-      if (isPlaying.value || isBuffering.value) {
-        await assetsAudioPlayer?.stop();
-      }
-      await assetsAudioPlayer?.open(
-          Audio.liveStream(
-            url,
-            metas: getMetas(currentPlayingRadio.value!),
-          ),
-          loopMode: LoopMode.single,
-          playInBackground: PlayInBackground.enabled,
-          showNotification: true,
-          notificationSettings:
-              const NotificationSettings()); //FIXME we are timing out because failure  assetsAudioPlayer.open() is not throwing an exception
+    await _assetsAudioPlayer.open(
+        Playlist(audios: _getAudios((_state.value as LoadedState).data), startIndex: 0),
+        loopMode: LoopMode.none,
+        playInBackground: PlayInBackground.enabled,
+        showNotification: true,
+        autoStart: false,
+        notificationSettings: const NotificationSettings());
+    _currentRadio.value = null;
     } catch (e) {
-      assetsAudioPlayer?.stop();
+      _isError.value = true;
+      _assetsAudioPlayer.stop();
     }
   }
 
-  void onPlayButtonClicked() {
-    print(
-        " ****========= isPlaying.value ${isPlaying.value} isBuffering.value ${isBuffering.value} isStopped.value ${isStopped.value} isError.value ${isError.value} ===== ++");
-    if (isError.value) {
-      initializePlayer();
-      playNewUrl(currentPlayingRadio.value!.url);
-    } else {
-      assetsAudioPlayer?.playOrPause();
+  void _onError() {
+    _assetsAudioPlayer.onErrorDo = (errorHandler) {
+      print("handled ===> ${errorHandler.error.message}");
+      _isError.value = true;
+      onStop();
+    };
+  }
+
+  void _registerObservers(){
+    _assetsAudioPlayer.isPlaying.listen((val) {
+      _isPlaying.value = val;
+    });
+    _assetsAudioPlayer.isBuffering.listen((val) {
+      _isBuffering.value = val;
+    });
+    _assetsAudioPlayer.playerState.listen((val) {
+      if (val == PlayerState.stop) {
+        _isBuffering.value = false;
+      }
+    });
+    homeItemPositionsListener.itemPositions.addListener((){
+      final bottomVisible = homeItemPositionsListener.itemPositions.value.where((item){
+        return item.itemTrailingEdge >= 0.06;
+      }).map((t) => t.index).toList();
+      _showHeaderTitle.value = !bottomVisible.contains(0);
+    });
+  }
+
+  //End of Player setup
+
+  //Player commands
+  void onPlayRadio(int index) => _onPlayRadio(index);
+  void onPlay() => _assetsAudioPlayer.playOrPause();
+  void onStop() => _assetsAudioPlayer.stop();
+  void onPrevious() => _onPrevious();
+  void onNext() => _onNext();
+
+
+
+  void _onPlayRadio(int index) {
+    if((_currentRadioIndex.value == 0 && !isPlaying) || _currentRadioIndex.value != index){
+      _currentRadioIndex.value =  index;
+      final radio = (_state.value as LoadedState).data[index];
+      _currentRadio.value = radio;
+      _assetsAudioPlayer.playlistPlayAtIndex(index);
     }
   }
-
-  void onStop() {
-    assetsAudioPlayer?.stop();
-   // reset();
+  void _onNext() {
+    _currentRadioIndex.value += 1;
+    _currentRadio.value = getRadioForIndex(_currentRadioIndex.value);
+    _assetsAudioPlayer.next(keepLoopMode: false);
+  }
+  void _onPrevious(){
+    _currentRadioIndex.value -= 1;
+    _currentRadio.value =  getRadioForIndex(_currentRadioIndex.value);
+    _assetsAudioPlayer.previous(keepLoopMode: false);
   }
 
-  void reset(){
-    currentPlayingRadio.value == null;
-    initializePlayer();
-  }
+  //End of Player commands
 
-  void onPrevious() {
-    if (isError.value) {
-      initializePlayer();
-    }
-    var currentIndex = indexOfCurrentPlayingRadio();
-    if (currentIndex > 0) {
-      currentPlayingRadio.value = radios[currentIndex - 1];
-      playNewUrl(currentPlayingRadio.value!.url);
-    } else {}
+  RadioModel getRadioForIndex(int index){
+    return (_state.value as LoadedState).data[index];
   }
-
-  void onNext() {
-    if (isError.value) {
-      initializePlayer();
-    }
-    var currentIndex = indexOfCurrentPlayingRadio();
-    if (currentIndex < radios.length - 1) {
-      currentPlayingRadio.value = radios[currentIndex + 1];
-      playNewUrl(currentPlayingRadio.value!.url);
-    } else {}
-  }
-
-  int indexOfCurrentPlayingRadio() {
-    return radios.indexOf(currentPlayingRadio.value);
-  }
-
   bool isLast() {
-    return radios.indexOf(currentPlayingRadio.value) + 1 == radios.length;
+    return _currentRadioIndex.value + 1 == (_state.value as LoadedState).data.length;
   }
 
   bool isFirst() {
-    return radios.indexOf(currentPlayingRadio.value) == 0;
+    return _currentRadioIndex.value == 0;
   }
 
-  Metas getMetas(RadioModel radio) {
+  List<Audio> _getAudios(List<RadioModel> radios) {
+    return radios.map<Audio>((r) => _radioModelToAudio(r)).toList();
+  }
+
+  Audio _radioModelToAudio(RadioModel radioModel) {
+    return Audio.liveStream(radioModel.url, metas: _getMetas(radioModel));
+  }
+
+  Metas _getMetas(RadioModel radio) {
     return Metas(
       title: radio.name,
       artist: radio.wave,
-      album: "Live Radio",
-      image: MetasImage.network(radio.img), //can be MetasImage.network
+      album: Constants.notificationAlbumName,
+      image: MetasImage.network(radio.img),
     );
   }
 
   RadioModel? getRadioByUrl(String url) {
-    return radios.firstWhereOrNull((radio) => radio.url == url);
+    return (_state.value as LoadedState).data.firstWhereOrNull((radio) => radio.url == url);
   }
 
-  Future<void> _getRadios() async {
-    loading.value = true;
-    if (_shouldFetchRemoteData()) {
-      _fetRemoteData();
-    } else {
-      final data = _storage.read(_data);
-      radios.value = _parseData(_jsonDecoder.convert(data));
-    }
-    loading.value = false;
+  Future<void> _refreshData() async {
+    _state.value = LoadingState();
+    _dataRepository.getRadios(); //FIXME revisit
   }
-
-  List<RadioModel> _parseData(dynamic data) {
-    return data
-        .map<RadioModel>(
-            (radioJson) => RadioDto.fromJson(radioJson).toRadioModel())
-        .toList();
-  }
-
-  Future<void> _fetRemoteData() async {
-    try{
-      HttpServices httpServices = Get.find();
-      var response = await httpServices.get("allradios");
-      if (response.statusCode == 200) {
-        final data = response.data;
-        radios.value = _parseData(data);
-        _storage.write(_cachedTime, DateTime.now().toString());
-        _storage.write(_data, _jsonEncoder.convert(data));
-      } else {
-        throw("response.statusCode not 200");
-      }
-      dataFetchingFailed.value = false;
-    }catch(e){
-      print(e);
-      dataFetchingFailed.value = true;
-    }
-  }
-
-  /// Check if we need to fetch remote data
-  bool _shouldFetchRemoteData() {
-    try {
-      final cachedTime = _storage.read(_cachedTime);
-      return _storage.read(_data) == null || DateTime.now().difference(DateTime.parse(cachedTime)).inDays > 0;
-    } catch(e) {
-      return true;
-    }
-  }
-
 
 }

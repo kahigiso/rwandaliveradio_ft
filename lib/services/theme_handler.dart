@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
+import 'package:logging/logging.dart';
+
+import '../database/local_database.dart';
 
 class ThemeHandler {
-  final _storage = GetStorage();
+  final log = Logger('ThemeHandler');
+  final LocalDatabase _localDatabase = Get.find();
   final storageKey = "isDark";
 
   ThemeMode getThemeMode() {
@@ -12,7 +15,7 @@ class ThemeHandler {
   }
 
   bool isDarkMode() {
-    bool? storeTheme = _storage.read(storageKey);
+    bool? storeTheme = _localDatabase.read(storageKey);
     if (storeTheme == null) {
       return getDeviceDefaultTheme() == Brightness.dark;
     } else {
@@ -21,7 +24,8 @@ class ThemeHandler {
   }
 
   void saveThemeMode(bool isDark){
-    _storage.write(storageKey, isDark);
+    log.info("save Theme Mode isDark $isDark");
+    _localDatabase.write(storageKey, isDark);
   }
 
   Brightness getDeviceDefaultTheme() {
