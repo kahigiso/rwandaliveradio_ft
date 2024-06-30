@@ -14,7 +14,6 @@ class DataRepository {
   final HttpServices _httpServices = Get.find();
 
   Future<ScreenState> getRadios() async {
-    await Future<void>.delayed(const Duration(seconds: 10));
     if (await _shouldFetchRemoteData()) {
       return _fetchRemoteData();
     } else {

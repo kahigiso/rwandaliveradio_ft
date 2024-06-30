@@ -34,7 +34,8 @@ class Themes {
         tertiary: _themes.lightContainerCardBg,
         surface: _themes.lightCardHeadBg,
         surfaceDim: _themes.lightCardHeadBgCurrent,
-        onTertiary: _themes.lightCardHeadBgCurrent
+        onTertiary: _themes.lightCardHeadBgCurrent,
+        outline:_themes.lightText
     ),
     textTheme: GoogleFonts.actorTextTheme().copyWith(
         bodyLarge: GoogleFonts.actor(
@@ -72,7 +73,9 @@ class Themes {
           tertiary: _themes.darkContainerCardBg,
           surface: _themes.darkCardHeadBg,
           surfaceDim: _themes.darkCardHeadBgCurrent,
-          onTertiary: _themes.darkCardHeadBgCurrent.withOpacity(0.1)),
+          onTertiary: _themes.darkCardHeadBgCurrent.withOpacity(0.1),
+          outline:_themes.darkText
+      ),
       textTheme: GoogleFonts.actorTextTheme().copyWith(
           bodyLarge: GoogleFonts.actor(
               color: _themes.darkText,

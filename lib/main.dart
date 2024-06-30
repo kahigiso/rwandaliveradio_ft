@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/pages/about_page.dart';
-import 'package:rwandaliveradio_fl/pages/contact_page.dart';
+import 'package:rwandaliveradio_fl/pages/contact_us_page.dart';
 import 'package:rwandaliveradio_fl/pages/home_page.dart';
 import 'package:rwandaliveradio_fl/pages/player_page.dart';
 import 'package:rwandaliveradio_fl/services/theme_handler.dart';
 import 'package:rwandaliveradio_fl/utils/constants.dart';
-import 'package:rwandaliveradio_fl/utils/utils.dart';
+import 'package:rwandaliveradio_fl/di/dependency_injection.dart';
 import 'themes.dart';
 
 void main() async {
@@ -42,8 +42,8 @@ class RwandaLiveRadioApp extends StatelessWidget {
       routes: {
         "/${Constants.homeScreen}": (context) => HomePage(),
         Constants.playerScreen: (context) => PlayerPage(),
-        Constants.contactScreen: (context) => const ContactPage(),
-        Constants.contactScreen: (context) => const AboutPage(),
+        Constants.aboutScreen: (context) => const AboutPage(),
+        Constants.contactScreen: (context) => ContactUsPage(),
       },
       initialRoute: "/${Constants.homeScreen}",
     );
