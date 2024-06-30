@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
-import '../pages/home_screen_controller.dart';
+import '../pages/controllers/home_page_controller.dart';
+import '../services/player_service.dart';
 
 class RadioInfo extends StatelessWidget {
   final String url;
   final controller = Get.put(
-    HomeScreenController(),
+    HomePageController(),
   );
 
   RadioInfo({super.key, required this.url});

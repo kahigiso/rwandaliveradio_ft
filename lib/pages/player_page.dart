@@ -2,20 +2,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/models/radio_model.dart';
+import 'package:rwandaliveradio_fl/pages/controllers/player_page_controller.dart';
 import 'package:rwandaliveradio_fl/services/theme_handler.dart';
 import 'package:rwandaliveradio_fl/widgets/avatar.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import '../models/screen_state.dart';
 import '../widgets/app_bg.dart';
-import 'home_screen_controller.dart';
 
 class PlayerPage extends StatelessWidget {
-  final homeController = Get.put(
-    HomeScreenController(),
-  );
-  final themeHandler = Get.put(
-    ThemeHandler(),
-  );
+  final controller = Get.find<PlayerPageController>();
+  final themeHandler = Get.find<ThemeHandler>();
 
   PlayerPage({super.key});
 
@@ -33,14 +28,14 @@ class PlayerPage extends StatelessWidget {
   }
 
   void _scrollTo() {
-    homeController.playerListScrollController.scrollTo(
-        index: homeController.currentRadioIndex,
+    controller.scrollController.scrollTo(
+        index: controller.currentRadioIndex,
         duration: const Duration(seconds: 1),
         curve: Curves.fastOutSlowIn);
   }
 
   IconData _getPlayerIcon() {
-    if (homeController.isPlaying) {
+    if (controller.isPlaying) {
       return Icons.pause_circle_filled_rounded;
     } else {
       return Icons.play_circle_fill_rounded;
@@ -56,7 +51,7 @@ class PlayerPage extends StatelessWidget {
               children: [
               const SizedBox(height: 20,),
                 Avatar(
-                  url: homeController.currentRadio?.img ?? "",
+                  url: controller.currentRadio?.img ?? "",
                   size: (MediaQuery.sizeOf(context).width * 0.30) / 0.6,
                   radius: MediaQuery.sizeOf(context).width * 0.30,
                   boxShadows: (!themeHandler.isDarkMode())?  <BoxShadow>[
@@ -77,7 +72,7 @@ class PlayerPage extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                            homeController.currentRadio?.shortWave ??
+                            controller.currentRadio?.shortWave ??
                                 "",
                             maxLines: 1,
                             textAlign: TextAlign.center,
@@ -85,7 +80,7 @@ class PlayerPage extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.only(bottom: 25.0, top: 8),
                           child: Text(
-                            homeController.currentRadio?.name ?? "",
+                            controller.currentRadio?.name ?? "",
                             style: Theme.of(context).textTheme.bodyMedium,
                           ),
                         ),
@@ -110,17 +105,17 @@ class PlayerPage extends StatelessWidget {
                             children: [
                               IconButton(
                                 disabledColor: Theme.of(context).indicatorColor,
-                                onPressed: (homeController.isFirst())? null : () => {homeController.onPrevious(), _scrollTo()},
+                                onPressed: (controller.isFirst())? null : () => {controller.onPrevious(), _scrollTo()},
                                 icon: Icon(
                                   Icons.skip_previous_rounded,
                                   size: 40,
-                                  color:(homeController.isFirst())? null : Theme.of(context).iconTheme.color,
+                                  color:(controller.isFirst())? null : Theme.of(context).iconTheme.color,
                                 ),
                               ),
                               const SizedBox(
                                 width: 20,
                               ),
-                              (homeController.isBuffering)
+                              (controller.isBuffering)
                                   ?Padding(
                                 padding: const EdgeInsets.all(18.0),
                                 child: SizedBox(
@@ -134,7 +129,7 @@ class PlayerPage extends StatelessWidget {
                                 ),
                               ):IconButton(
                                       onPressed: () => {
-                                            homeController.onPlay()
+                                            controller.onPlay()
                                           },
                                       icon: Icon(
                                         _getPlayerIcon(),
@@ -145,11 +140,11 @@ class PlayerPage extends StatelessWidget {
                               ),
                               IconButton(
                                 disabledColor: Theme.of(context).indicatorColor,
-                                onPressed: (homeController.isLast())? null : () => {homeController.onNext(), _scrollTo()},
+                                onPressed: (controller.isLast())? null : () => {controller.onNext(), _scrollTo()},
                                 icon: Icon(
                                   Icons.skip_next_rounded,
                                   size: 40,
-                                  color:(homeController.isLast())? null : Theme.of(context).iconTheme.color,
+                                  color:(controller.isLast())? null : Theme.of(context).iconTheme.color,
                                 ),
                               )
                             ],
@@ -192,16 +187,16 @@ class PlayerPage extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 12.0),
             height: 170,
             child: ScrollablePositionedList.builder(
-              itemScrollController: homeController.playerListScrollController,
-              initialScrollIndex: homeController.currentRadioIndex,
+              itemScrollController: controller.scrollController,
+              initialScrollIndex: controller.currentRadioIndex,
               scrollDirection: Axis.horizontal,
-              itemCount: (homeController.state as LoadedState).data.length,
+              itemCount: controller.playList.length,
               itemBuilder: (context, index) {
                 return GestureDetector(
                   onTap: () => {
-                    homeController.onPlayRadio(index),
+                    controller.onPlayRadio(index),
                   },
-                  child: _listItemUi(context, homeController.getRadioForIndex(index)),
+                  child: _listItemUi(context, controller.getRadioForIndex(index)),
                 );
               },
             ),
@@ -216,7 +211,7 @@ class PlayerPage extends StatelessWidget {
       width: MediaQuery.sizeOf(context).width * 0.3,
       margin: const EdgeInsets.only( top: 10, left: 10,bottom: 15),
       decoration: BoxDecoration(
-        color: (radio.url == homeController.currentRadio?.url) ? Theme.of(context).colorScheme.surfaceDim.withOpacity(0.7) :Theme.of(context).colorScheme.tertiary,
+        color: (radio.url == controller.currentRadio?.url) ? Theme.of(context).colorScheme.surfaceDim.withOpacity(0.7) :Theme.of(context).colorScheme.tertiary,
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         boxShadow: (!themeHandler.isDarkMode())? <BoxShadow>[
           BoxShadow(
@@ -237,7 +232,7 @@ class PlayerPage extends StatelessWidget {
             child: CachedNetworkImage(
               width: MediaQuery.sizeOf(context).width * 0.3,
               height: MediaQuery.sizeOf(context).height * 0.077,
-              imageUrl: radio.img ?? "",
+              imageUrl: radio.img,
               fit: BoxFit.fill,
             ),
           ),
@@ -259,7 +254,7 @@ class PlayerPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: Text(
-              radio.shortWave ?? "",
+              radio.shortWave,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: Theme.of(context).textTheme.bodySmall,

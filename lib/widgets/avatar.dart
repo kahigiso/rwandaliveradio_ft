@@ -42,14 +42,11 @@ class Avatar extends StatelessWidget {
                 backgroundColor: Color(0xFFEEEEEE),
                 color: Color(0xFFD6D6D6),
                 strokeWidth: 2),
-            errorWidget: (context, url, error) => Container(
-                decoration: const BoxDecoration(
-                    shape: BoxShape.circle, color: Colors.red),
-                child: const Center(
-                    child: Text(
-                      "RT", //TODO update to abbreviation
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ))),
+            errorWidget: (context, url, error) => Image.asset(
+              "assets/images/logo.png",
+              fit: BoxFit.cover,
+              color: Theme.of(context).iconTheme.color,
+            ),
           ),
         ),
       ),
