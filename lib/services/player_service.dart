@@ -4,6 +4,8 @@ import '../utils/constants.dart';
 
 class PlayerService implements IPlayerService {
   final  _assetsAudioPlayer = AssetsAudioPlayer.withId(Constants.playerName);
+  @override
+  bool isAudioPlayerReady = false;
 
   @override
   AssetsAudioPlayer getPlayer() {
@@ -11,19 +13,23 @@ class PlayerService implements IPlayerService {
   }
 
   @override
-  Future<void> open(List<RadioModel> radios) async {
+  Future<void> open(List<RadioModel> radios, int index) async {
     _assetsAudioPlayer.setVolume(1); //TODO revisit
     await _assetsAudioPlayer.open(
-        Playlist(audios: _getAudios(radios), startIndex: 0),
+        Playlist(audios: _getAudios(radios), startIndex: index),
         loopMode: LoopMode.none,
         playInBackground: PlayInBackground.enabled,
         showNotification: true,
-        autoStart: false,
+        autoStart: true,
         notificationSettings: const NotificationSettings(
             seekBarEnabled: false, stopEnabled: false,
 
         )
-    );
+    ).then((value) {
+      isAudioPlayerReady = true;
+    }).catchError((error){
+      isAudioPlayerReady = false;
+    });
   }
 
   @override
@@ -76,13 +82,14 @@ class PlayerService implements IPlayerService {
 }
 
 abstract class IPlayerService {
+  late bool isAudioPlayerReady;
   AssetsAudioPlayer getPlayer();
   Future<void> onPlayRadio(int index);
   Future<void> onPlay();
   Future<void> onStop();
   Future<void> onPrevious();
   Future<void> onNext();
-  Future<void> open(List<RadioModel> radios);
+  Future<void> open(List<RadioModel> radios, int index);
   void onError(Function onError) ;
   void dispose();
 }

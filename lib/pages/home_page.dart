@@ -22,19 +22,10 @@ class HomePage extends StatelessWidget {
 
   HomePage({super.key});
 
-  void _scrollTo() {
-    controller.homeListScrollController.scrollTo(
-        index: controller.currentRadioIndex,
-        duration: const Duration(seconds: 1),
-        curve: Curves.fastOutSlowIn
-    );
-  }
-
-
   void _navigateToPlayer(int index) {
     controller.onPlayRadio(index);
     Get.toNamed(Constants.playerScreen)?.then((val)=>{
-      _scrollTo()
+      controller.scrollTo(null)
     });
   }
 
@@ -46,15 +37,13 @@ class HomePage extends StatelessWidget {
             controller.onEndDrawerClose();
           },
           appBar: _appBar(context),
-          body: SafeArea(
-            child: Stack(
-              children: [
-                if (controller.state is LoadingState) _showLoading(context),
-                if (controller.state is LoadedState)_showRadioList(context),
-                if (controller.state is ErrorState) _showError(context),
-                if (controller.currentRadio != null) BottomPlayer()
-              ],
-            ),
+          body: Stack(
+            children: [
+              if (controller.state is LoadingState) _showLoading(context),
+              if (controller.state is LoadedState)_showRadioList(context),
+              if (controller.state is ErrorState) _showError(context),
+              if (controller.currentRadio != null) BottomPlayer()
+            ],
           ),
         )
     );
@@ -64,7 +53,7 @@ class HomePage extends StatelessWidget {
     return ScrollablePositionedList.builder(
         shrinkWrap: true,
         initialScrollIndex: controller.currentRadioIndex,
-        itemScrollController: controller.homeListScrollController,
+        itemScrollController: controller.itemScrollController,
         itemPositionsListener: controller.homeItemPositionsListener,
         itemCount: (controller.state as LoadedState).data.length,
         itemBuilder: (context, index) {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/animation.dart';
 import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/pages/controllers/shared/player_controller.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -11,7 +12,7 @@ class HomePageController extends GetxController {
   final PlayerController _playerController = Get.find();
   final DataRepository _dataRepository = Get.find();
   final Rx<ScreenState> _state = (LoadingState() as ScreenState).obs;
-  final Rx<ItemScrollController> _homeListScrollController = (ItemScrollController()).obs;
+  final Rx<ItemScrollController> _itemScrollController = (ItemScrollController()).obs;
   final Rx<ItemPositionsListener> _homeItemPositionsListener = (ItemPositionsListener.create()).obs;
   final RxBool _isSettingExpanded = false.obs;
   final RxBool _showHeaderTitle = false.obs;
@@ -19,7 +20,7 @@ class HomePageController extends GetxController {
 
 
   //getters
-  ItemScrollController get homeListScrollController  => _homeListScrollController.value;
+  ItemScrollController get itemScrollController  => _itemScrollController.value;
   ItemPositionsListener get homeItemPositionsListener  => _homeItemPositionsListener.value;
   RadioModel? get currentRadio => _playerController.currentRadio;
   List<RadioModel> get playList => _playerController.playList;
@@ -36,8 +37,10 @@ class HomePageController extends GetxController {
   @override
   void onInit() async {
     await _initialize();
+    _registerScrollerListener();
     super.onInit();
   }
+
 
   Future<void> _initialize() async {
     _state.value = LoadingState();
@@ -56,7 +59,7 @@ class HomePageController extends GetxController {
   Future<void> _playerSetup() async {
     _registerObservers();
     _playerController.onError();
-    _playerController.openPlayer((_state.value as LoadedState).data);
+    _playerController.setPlayList((_state.value as LoadedState).data);
   }
 
   void _registerObservers(){
@@ -92,6 +95,22 @@ class HomePageController extends GetxController {
   }
   void onEndDrawerClose(){
     _isSettingExpanded.value = false;
+  }
+
+  void _registerScrollerListener(){
+    _playerController.newIndex.listen((val){
+      scrollTo(val);
+    });
+  }
+
+  void scrollTo(int? index) {
+    if(itemScrollController.isAttached){
+      itemScrollController.scrollTo(
+          index: index??currentRadioIndex,
+          duration: const Duration(seconds: 1),
+          curve: Curves.fastOutSlowIn
+      );
+    }
   }
 
 }
