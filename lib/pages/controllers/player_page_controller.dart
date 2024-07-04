@@ -1,3 +1,4 @@
+import 'package:flutter/animation.dart';
 import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/pages/controllers/shared/player_controller.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -36,5 +37,26 @@ class PlayerPageController extends GetxController {
   void onNext() => _playerController.onNext();
 
   RadioModel getRadioForIndex(int index) => _playerController.getRadioForIndex(index);
+
+  @override
+  void onInit() {
+    _registerScrollerListener();
+    super.onInit();
+  }
+
+  void _registerScrollerListener(){
+    _playerController.newIndex.listen((val){
+      _scrollTo(val);
+    });
+  }
+
+  void _scrollTo(int index) {
+    if(scrollController.isAttached){
+      scrollController.scrollTo(
+          index: index,
+          duration: const Duration(seconds: 1),
+          curve: Curves.fastOutSlowIn);
+    }
+  }
 
 }

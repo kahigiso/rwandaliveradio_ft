@@ -27,13 +27,6 @@ class PlayerPage extends StatelessWidget {
         ));
   }
 
-  void _scrollTo() {
-    controller.scrollController.scrollTo(
-        index: controller.currentRadioIndex,
-        duration: const Duration(seconds: 1),
-        curve: Curves.fastOutSlowIn);
-  }
-
   IconData _getPlayerIcon() {
     if (controller.isPlaying) {
       return Icons.pause_circle_filled_rounded;
@@ -104,7 +97,7 @@ class PlayerPage extends StatelessWidget {
                           children: [
                             IconButton(
                               disabledColor: Theme.of(context).indicatorColor,
-                              onPressed: (controller.isFirst())? null : () => {controller.onPrevious(), _scrollTo()},
+                              onPressed: (controller.isFirst())? null : () => {controller.onPrevious()},
                               icon: Icon(
                                 Icons.skip_previous_rounded,
                                 size: 40,
@@ -139,7 +132,7 @@ class PlayerPage extends StatelessWidget {
                             ),
                             IconButton(
                               disabledColor: Theme.of(context).indicatorColor,
-                              onPressed: (controller.isLast())? null : () => {controller.onNext(), _scrollTo()},
+                              onPressed: (controller.isLast())? null : () => {controller.onNext()},
                               icon: Icon(
                                 Icons.skip_next_rounded,
                                 size: 40,

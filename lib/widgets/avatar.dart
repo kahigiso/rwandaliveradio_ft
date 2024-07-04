@@ -19,34 +19,28 @@ class Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _buildAvatarUi(context,  url, size, radius, boxShadows );
-  }
-
-  Widget _buildAvatarUi(BuildContext context, String url, double size , double radius, List<BoxShadow> boxShadow) {
     return Container(
       decoration:  BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        boxShadow: boxShadow,
+        boxShadow: boxShadows,
       ),
-      child: ClipOval(
-        child: CircleAvatar(
-          radius: radius,
-          backgroundColor: Colors.white,
-          child: CachedNetworkImage(
-            imageUrl: url.trim(),
-            width: size,
-            height: size,
-            fit: BoxFit.contain,
-            placeholder: (context, url) => const CircularProgressIndicator(
-                backgroundColor: Color(0xFFEEEEEE),
-                color: Color(0xFFD6D6D6),
-                strokeWidth: 2),
-            errorWidget: (context, url, error) => Image.asset(
-              "assets/images/logo.png",
-              fit: BoxFit.cover,
-              color: Theme.of(context).iconTheme.color,
-            ),
+      child: CircleAvatar(
+        radius: radius,
+        backgroundColor: Colors.white,
+        child: CachedNetworkImage(
+          imageUrl: url,
+          width: size,
+          height: size,
+          fit: BoxFit.contain,
+          placeholder: (context, url) => const CircularProgressIndicator(
+              backgroundColor: Color(0xFFEEEEEE),
+              color: Color(0xFFD6D6D6),
+              strokeWidth: 2),
+          errorWidget: (context, url, error) => Image.asset(
+            "assets/images/logo.png",
+            fit: BoxFit.cover,
+            color: Theme.of(context).iconTheme.color,
           ),
         ),
       ),

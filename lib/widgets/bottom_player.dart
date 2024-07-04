@@ -21,15 +21,6 @@ class BottomPlayer extends StatelessWidget {
     }
   }
 
-  void _scrollTo() {
-    controller.homeListScrollController.scrollTo(
-        index: controller.currentRadioIndex,
-        duration: const Duration(seconds: 1),
-        curve: Curves.fastOutSlowIn
-    );
-  }
-
-
   @override
   Widget build(BuildContext context) {
     final shadowColor = (themeHandler.isDarkMode())
@@ -96,7 +87,7 @@ class BottomPlayer extends StatelessWidget {
                                 child: InkWell(
                                   onTap: () {
                                     Get.toNamed(Constants.playerScreen)?.then((val)=>{
-                                      _scrollTo()
+                                      controller.scrollTo(null)
                                     });
                                   },
                                   child: Column(
@@ -151,8 +142,7 @@ class BottomPlayer extends StatelessWidget {
                                             ? null
                                             : () =>
                                         {
-                                          controller.onPrevious(),
-                                          _scrollTo()
+                                          controller.onPrevious()
                                         },
                                         icon: Icon(
                                           Icons.skip_previous_rounded,
@@ -197,8 +187,7 @@ class BottomPlayer extends StatelessWidget {
                                             ? null
                                             : () =>
                                         {
-                                          controller.onNext(),
-                                          _scrollTo()
+                                          controller.onNext()
                                         },
                                         icon: Icon(
                                           Icons.skip_next_rounded,

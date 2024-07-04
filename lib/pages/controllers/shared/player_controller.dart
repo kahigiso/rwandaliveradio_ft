@@ -10,6 +10,7 @@ class PlayerController extends GetxController {
   final RxBool _isError = false.obs;
   final RxBool _isStopped = true.obs;
   final Rx<RadioModel?> _currentRadio = (null as RadioModel?).obs;
+  final RxInt newIndex = (0).obs;
   final RxInt _currentRadioIndex = (0).obs;
   final RxList<RadioModel> _playList = <RadioModel>[].obs;
   bool _nextDone = true;
@@ -43,16 +44,6 @@ class PlayerController extends GetxController {
 
 
   //Player commands and public functions
-  Future<void> openPlayer(List<RadioModel> radios) async {
-    try {
-      setPlayList(radios);
-      await playerService.open(radios);
-      _currentRadio.value = null;
-    } catch (e) {
-      _isError.value = true;
-      playerService.getPlayer().stop();
-    }
-  }
   void onPlayRadio(int index) => _onPlayRadio(index);
 
   void onPlay() => playerService.onPlay();
@@ -90,13 +81,48 @@ class PlayerController extends GetxController {
   }
   //Private functions
   Future<void> _onPlayRadio(int index) async {
-    if ((_currentRadioIndex.value == 0 && !isPlaying) ||
-        _currentRadioIndex.value != index) {
-      _currentRadioIndex.value = index;
-      final radio = playList[index];
-      _currentRadio.value = radio;
-      await playerService.onPlayRadio(index);
+    //Don't play if the next or prev button is loading
+    if (_nextDone && _prevDone) {
+      if (!playerService.isAudioPlayerReady) {
+        await _openPlayer(index); //First time player is open
+      } else {
+        if (_currentRadioIndex.value != index) {
+          await playerService.onPlayRadio(index);
+        }
+      }
     }
+  }
+  Future<void> _openPlayer(int index) async {
+    try {
+      await playerService.open(_playList, index);
+    } catch (e) {
+      _isError.value = true;
+      playerService.isAudioPlayerReady = false;
+      playerService.getPlayer().stop();
+    }
+  }
+
+  void _onNext() async {
+    if (_nextDone) {
+      _nextDone = false;
+      await playerService.onNext();
+      _nextDone = true;
+    }
+  }
+
+  void _onPrevious() async {
+    if (_prevDone) {
+      _prevDone = false;
+      await playerService.onPrevious();
+      _prevDone = true;
+    }
+  }
+
+  void _onError() {
+    playerService.onError(() {
+      _isError.value = true;
+      onStop();
+    });
   }
 
   void _registerPlayerObservers(){
@@ -111,32 +137,14 @@ class PlayerController extends GetxController {
         _isBuffering.value = false;
       }
     });
-  }
+    playerService.getPlayer().current.listen((val) {
+      if (val != null) {
+        _currentRadioIndex.value = val.index;
+        _currentRadio.value = getRadioForIndex(val.index);
+        newIndex.value = val.index;
+      }
 
-  void _onNext() async {
-    if (_nextDone) {
-      _nextDone = false;
-      _currentRadioIndex.value += 1;
-      _currentRadio.value = getRadioForIndex(_currentRadioIndex.value);
-      await playerService.onNext();
-      _nextDone = true;
-    }
-  }
-
-  void _onPrevious() async {
-    if (_prevDone) {
-      _prevDone = false;
-      _currentRadioIndex.value -= 1;
-      _currentRadio.value = getRadioForIndex(_currentRadioIndex.value);
-      await playerService.onPrevious();
-      _prevDone = true;
-    }
-  }
-
-  void _onError() {
-    playerService.onError(() {
-      _isError.value = true;
-      onStop();
     });
   }
+
 }
