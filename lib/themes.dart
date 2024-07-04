@@ -5,18 +5,18 @@ import 'package:google_fonts/google_fonts.dart';
 class Themes {
   Color lightPrimaryColor = const Color(0xFFFFFFFF);
   Color lightSecondaryColor = const Color(0xFF4831D4);
-  Color darkPrimaryColor = const Color(0xFF0D111A);
+  Color darkPrimaryColor = const Color(0xFF1C202D);
   Color darkSecondaryColor = const Color(0xFF1E1C29).withOpacity(0.8);
   Color accentColor = const Color(0xFFF6AB1C).withOpacity(0.7);
 
   Color lightContainerCardBg = const Color(0xFFFFFFFF);
-  Color darkContainerCardBg = const Color(0xFF1E1C29);
+  Color darkContainerCardBg = const Color(0xFF292F40).withOpacity(0.8);
 
   Color lightCardHeadBg = const Color(0xFF4831D4);
   Color darkCardHeadBg = const Color(0xFFF6AB1C).withOpacity(0.7);
 
   Color lightCardHeadBgCurrent = const Color(0xFFF6AB1C);
-  Color darkCardHeadBgCurrent = const Color(0xFF4831D4).withOpacity(0.9);
+  Color darkCardHeadBgCurrent = const Color(0xFF7F8C8D).withOpacity(0.7);
 
   Color lightText = const Color(0xFF1C2436).withOpacity(0.8);
   Color darkText = const Color(0xFFFFFFFF).withOpacity(0.8);

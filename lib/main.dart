@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:rwandaliveradio_fl/pages/about_page.dart';
 import 'package:rwandaliveradio_fl/pages/contact_us_page.dart';
+import 'package:rwandaliveradio_fl/pages/favorite_page.dart';
 import 'package:rwandaliveradio_fl/pages/home_page.dart';
 import 'package:rwandaliveradio_fl/pages/player_page.dart';
 import 'package:rwandaliveradio_fl/services/theme_handler.dart';
@@ -42,51 +43,11 @@ class RwandaLiveRadioApp extends StatelessWidget {
       routes: {
         "/${Constants.homeScreen}": (context) => HomePage(),
         Constants.playerScreen: (context) => PlayerPage(),
-        Constants.aboutScreen: (context) => const AboutPage(),
+        Constants.aboutScreen: (context) =>  AboutPage(),
         Constants.contactScreen: (context) => ContactUsPage(),
+        Constants.favoriteScreen: (context) => FavoritePage(),
       },
       initialRoute: "/${Constants.homeScreen}",
     );
   }
 }
-
-
-
-// void main() async {
-//   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-//   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-//   runApp(const RwandaLiveRadioApp());
-// }
-//
-// class RwandaLiveRadioApp extends StatefulWidget {
-//   const RwandaLiveRadioApp({super.key});
-//   @override
-//   SplashScreen createState() => SplashScreen();
-// }
-// class SplashScreen extends State<RwandaLiveRadioApp> {
-//   @override
-//   void initState() {
-//     super.initState();
-//     initialize();
-//   }
-//
-//   void initialize() async {
-//     print("pausing...");
-//     await Future.delayed(const Duration(seconds: 10));
-//     print("unpausing...");
-//     FlutterNativeSplash.remove();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return  const MaterialApp(
-//       title: 'Rwanda Live Radio',
-//       debugShowCheckedModeBanner: false,
-//       home: Scaffold(
-//         backgroundColor: Colors.red,
-//         body: Center(child: Text("app here"),),
-//       )
-//     );
-//   }
-//
-// }

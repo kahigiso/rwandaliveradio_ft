@@ -43,121 +43,119 @@ class PlayerPage extends StatelessWidget {
   }
 
   Widget _buildUi(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: SizedBox(
-            width: MediaQuery.sizeOf(context).width,
-            child: Column(
-              children: [
-              const SizedBox(height: 20,),
-                Avatar(
-                  url: controller.currentRadio?.img ?? "",
-                  size: (MediaQuery.sizeOf(context).width * 0.30) / 0.6,
-                  radius: MediaQuery.sizeOf(context).width * 0.30,
-                  boxShadows: (!themeHandler.isDarkMode())?  <BoxShadow>[
-                    BoxShadow(
-                        color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
-                        blurRadius: 15.0,
-                        offset: const Offset(0, 0)
-                    )
-                  ]:[],
-                ),
-                SizedBox(
-                  width: MediaQuery.sizeOf(context).width,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.sizeOf(context).height * 0.02,
-                      bottom: MediaQuery.sizeOf(context).height * 0.02,
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                            controller.currentRadio?.shortWave ??
-                                "",
-                            maxLines: 1,
-                            textAlign: TextAlign.center,
-                            style: Theme.of(context).textTheme.bodyLarge),
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 25.0, top: 8),
-                          child: Text(
-                            controller.currentRadio?.name ?? "",
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
+    return SingleChildScrollView(
+      child: SizedBox(
+          width: MediaQuery.sizeOf(context).width,
+          child: Column(
+            children: [
+            const SizedBox(height: 20,),
+              Avatar(
+                url: controller.currentRadio?.img ?? "",
+                size: (MediaQuery.sizeOf(context).width * 0.30) / 0.6,
+                radius: MediaQuery.sizeOf(context).width * 0.30,
+                boxShadows: (!themeHandler.isDarkMode())?  <BoxShadow>[
+                  BoxShadow(
+                      color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+                      blurRadius: 15.0,
+                      offset: const Offset(0, 0)
+                  )
+                ]:[],
+              ),
+              SizedBox(
+                width: MediaQuery.sizeOf(context).width,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.sizeOf(context).height * 0.02,
+                    bottom: MediaQuery.sizeOf(context).height * 0.02,
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                          controller.currentRadio?.shortWave ??
+                              "",
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyLarge),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25.0, top: 8),
+                        child: Text(
+                          controller.currentRadio?.name ?? "",
+                          style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                        Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 30),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.tertiary,
-                            borderRadius: BorderRadius.circular(15),
-                            boxShadow:(!themeHandler.isDarkMode())? <BoxShadow>[
-                              BoxShadow(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .surface
-                                      .withOpacity(0.1),
-                                  blurRadius: 15.0,
-                                  offset: const Offset(0, 0))
-                            ]:[],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                disabledColor: Theme.of(context).indicatorColor,
-                                onPressed: (controller.isFirst())? null : () => {controller.onPrevious(), _scrollTo()},
-                                icon: Icon(
-                                  Icons.skip_previous_rounded,
-                                  size: 40,
-                                  color:(controller.isFirst())? null : Theme.of(context).iconTheme.color,
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ),
-                              (controller.isBuffering)
-                                  ?Padding(
-                                padding: const EdgeInsets.all(18.0),
-                                child: SizedBox(
-                                  height: 50,
-                                  width: 50,
-                                  child:
-                                  CircularProgressIndicator(
-                                    strokeWidth: 4,
-                                    backgroundColor: Theme.of(context).iconTheme.color,
-                                  ),
-                                ),
-                              ):IconButton(
-                                      onPressed: () => {
-                                            controller.onPlay()
-                                          },
-                                      icon: Icon(
-                                        _getPlayerIcon(),
-                                        size: 70,
-                                      )),
-                              const SizedBox(
-                                width: 20,
-                              ),
-                              IconButton(
-                                disabledColor: Theme.of(context).indicatorColor,
-                                onPressed: (controller.isLast())? null : () => {controller.onNext(), _scrollTo()},
-                                icon: Icon(
-                                  Icons.skip_next_rounded,
-                                  size: 40,
-                                  color:(controller.isLast())? null : Theme.of(context).iconTheme.color,
-                                ),
-                              )
-                            ],
-                          ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 8.0, horizontal: 30),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          borderRadius: BorderRadius.circular(15),
+                          boxShadow:(!themeHandler.isDarkMode())? <BoxShadow>[
+                            BoxShadow(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .surface
+                                    .withOpacity(0.1),
+                                blurRadius: 15.0,
+                                offset: const Offset(0, 0))
+                          ]:[],
                         ),
-                        _radioHList(context),
-                      ],
-                    ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            IconButton(
+                              disabledColor: Theme.of(context).indicatorColor,
+                              onPressed: (controller.isFirst())? null : () => {controller.onPrevious(), _scrollTo()},
+                              icon: Icon(
+                                Icons.skip_previous_rounded,
+                                size: 40,
+                                color:(controller.isFirst())? null : Theme.of(context).iconTheme.color,
+                              ),
+                            ),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            (controller.isBuffering)
+                                ?Padding(
+                              padding: const EdgeInsets.all(18.0),
+                              child: SizedBox(
+                                height: 50,
+                                width: 50,
+                                child:
+                                CircularProgressIndicator(
+                                  strokeWidth: 4,
+                                  backgroundColor: Theme.of(context).iconTheme.color,
+                                ),
+                              ),
+                            ):IconButton(
+                                    onPressed: () => {
+                                          controller.onPlay()
+                                        },
+                                    icon: Icon(
+                                      _getPlayerIcon(),
+                                      size: 70,
+                                    )),
+                            const SizedBox(
+                              width: 20,
+                            ),
+                            IconButton(
+                              disabledColor: Theme.of(context).indicatorColor,
+                              onPressed: (controller.isLast())? null : () => {controller.onNext(), _scrollTo()},
+                              icon: Icon(
+                                Icons.skip_next_rounded,
+                                size: 40,
+                                color:(controller.isLast())? null : Theme.of(context).iconTheme.color,
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      _radioHList(context),
+                    ],
                   ),
                 ),
-              ],
-            )),
-      ),
+              ),
+            ],
+          )),
     );
   }
 
