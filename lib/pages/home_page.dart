@@ -258,20 +258,23 @@ class HomePage extends StatelessWidget {
           children: [
             Expanded(
               flex: 2,
-              child: Avatar(
-                url: radio.img,
-                boxShadows: (!themeHandler.isDarkMode())
-                    ? [
-                  BoxShadow(
-                      color: Theme
-                          .of(context)
-                          .colorScheme
-                          .surface
-                          .withOpacity(0.1),
-                      blurRadius: 6.0,
-                      offset: const Offset(0, 0))
-                ]
-                    : [],
+              child: Hero(
+                tag: "radio_logo$index",
+                child: Avatar(
+                  url: radio.img,
+                  boxShadows: (!themeHandler.isDarkMode())
+                      ? [
+                    BoxShadow(
+                        color: Theme
+                            .of(context)
+                            .colorScheme
+                            .surface
+                            .withOpacity(0.1),
+                        blurRadius: 6.0,
+                        offset: const Offset(0, 0))
+                  ]
+                      : [],
+                ),
               ),
             ),
             Expanded(

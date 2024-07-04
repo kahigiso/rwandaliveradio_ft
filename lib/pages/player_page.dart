@@ -42,17 +42,20 @@ class PlayerPage extends StatelessWidget {
           child: Column(
             children: [
             const SizedBox(height: 20,),
-              Avatar(
-                url: controller.currentRadio?.img ?? "",
-                size: (MediaQuery.sizeOf(context).width * 0.30) / 0.6,
-                radius: MediaQuery.sizeOf(context).width * 0.30,
-                boxShadows: (!themeHandler.isDarkMode())?  <BoxShadow>[
-                  BoxShadow(
-                      color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
-                      blurRadius: 15.0,
-                      offset: const Offset(0, 0)
-                  )
-                ]:[],
+              Hero(
+                  tag: "radio_logo${controller.currentRadioIndex}",
+                  child:  Avatar(
+                    url: controller.currentRadio?.img ?? "",
+                    size: (MediaQuery.sizeOf(context).width * 0.30) / 0.6,
+                    radius: MediaQuery.sizeOf(context).width * 0.30,
+                    boxShadows: (!themeHandler.isDarkMode())?  <BoxShadow>[
+                      BoxShadow(
+                          color: Theme.of(context).colorScheme.surface.withOpacity(0.1),
+                          blurRadius: 15.0,
+                          offset: const Offset(0, 0)
+                      )
+                    ]:[],
+                  ),
               ),
               SizedBox(
                 width: MediaQuery.sizeOf(context).width,
