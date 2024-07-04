@@ -12,13 +12,17 @@ class PlayerService implements IPlayerService {
 
   @override
   Future<void> open(List<RadioModel> radios) async {
+    _assetsAudioPlayer.setVolume(1); //TODO revisit
     await _assetsAudioPlayer.open(
         Playlist(audios: _getAudios(radios), startIndex: 0),
         loopMode: LoopMode.none,
         playInBackground: PlayInBackground.enabled,
         showNotification: true,
         autoStart: false,
-        notificationSettings: const NotificationSettings()
+        notificationSettings: const NotificationSettings(
+            seekBarEnabled: false, stopEnabled: false,
+
+        )
     );
   }
 

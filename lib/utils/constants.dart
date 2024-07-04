@@ -7,6 +7,7 @@ class Constants {
   static String playerScreen = "player_screen";
   static String contactScreen = "contact_screen";
   static String aboutScreen = "about_screen";
+  static String favoriteScreen = "favoriteScreen";
   //Others
   static String dataQuery = "allradios";
   static String cachedDataKey = "cached_data_key";

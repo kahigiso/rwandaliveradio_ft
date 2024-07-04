@@ -5,7 +5,6 @@ import '../../../services/player_service.dart';
 
 class PlayerController extends GetxController {
   late IPlayerService playerService = Get.find<PlayerService>();
-
   final RxBool _isPlaying = false.obs;
   final RxBool _isBuffering = false.obs;
   final RxBool _isError = false.obs;
@@ -13,6 +12,8 @@ class PlayerController extends GetxController {
   final Rx<RadioModel?> _currentRadio = (null as RadioModel?).obs;
   final RxInt _currentRadioIndex = (0).obs;
   final RxList<RadioModel> _playList = <RadioModel>[].obs;
+  bool _nextDone = true;
+  bool _prevDone = true;
 
   //public variable
   bool get isPlaying => _isPlaying.value;
@@ -113,15 +114,23 @@ class PlayerController extends GetxController {
   }
 
   void _onNext() async {
-    _currentRadioIndex.value += 1;
-    _currentRadio.value = getRadioForIndex(_currentRadioIndex.value);
-    await playerService.onNext();
+    if (_nextDone) {
+      _nextDone = false;
+      _currentRadioIndex.value += 1;
+      _currentRadio.value = getRadioForIndex(_currentRadioIndex.value);
+      await playerService.onNext();
+      _nextDone = true;
+    }
   }
 
   void _onPrevious() async {
-    _currentRadioIndex.value -= 1;
-    _currentRadio.value = getRadioForIndex(_currentRadioIndex.value);
-    await playerService.onPrevious();
+    if (_prevDone) {
+      _prevDone = false;
+      _currentRadioIndex.value -= 1;
+      _currentRadio.value = getRadioForIndex(_currentRadioIndex.value);
+      await playerService.onPrevious();
+      _prevDone = true;
+    }
   }
 
   void _onError() {
